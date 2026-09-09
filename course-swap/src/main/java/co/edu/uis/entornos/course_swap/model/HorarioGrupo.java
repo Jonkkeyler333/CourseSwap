@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
+
 @Entity
 @Table(name = "horario_grupo")
 @Data
@@ -24,8 +26,8 @@ public class HorarioGrupo {
     private String dia;
 
     @Column(name = "hora_inicio", nullable = false)
-    private String horaInicio;
+    private LocalTime horaInicio;
 
     @Column(name = "hora_fin", nullable = false)
-    private String horaFin;
+    private LocalTime horaFin;
 }
