@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class EstudianteRegisterDTO {
+public class    EstudianteRegisterDTO {
     @Schema(description = "Nombre del estudiante", example = "Juan")
     @NotBlank(message = "El nombre no puede estar vacio")
     @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")

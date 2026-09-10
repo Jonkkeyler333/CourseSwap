@@ -1,6 +1,100 @@
 <!DOCTYPE html>
-<html lang="en">
-    <h1>
-        Hiii bro
-    </h1>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourseSwap - Autenticación</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex align-items-center vh-100">
+
+    <main class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-6 col-lg-5">
+                
+                <div class="text-center mb-4">
+                    <h1 class="fw-bold text-primary">CourseSwap</h1>
+                    <p class="text-muted">Intercambio de grupos de materias UIS</p>
+                </div>
+
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white pb-0">
+                        <!-- Navegación de Pestañas Bootstrap -->
+                        <ul class="nav nav-tabs border-bottom-0" id="authTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="tab-login" data-bs-toggle="tab" data-bs-target="#pane-login" type="button" role="tab">Iniciar Sesión</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="tab-register" data-bs-toggle="tab" data-bs-target="#pane-register" type="button" role="tab">Registrarse</button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Alerta global (oculta por defecto con d-none) -->
+                        <div id="alert-message" class="alert d-none" role="alert"></div>
+
+                        <!-- Contenido de las pestañas -->
+                        <div class="tab-content" id="authTabsContent">
+                            
+                            <!-- Panel de Login (Activo por defecto) -->
+                            <div class="tab-pane fade show active" id="pane-login" role="tabpanel">
+                                <form id="login-form">
+                                    <div class="mb-3">
+                                        <label for="login-email" class="form-label">Correo Institucional</label>
+                                        <input type="email" id="login-email" class="form-control" required placeholder="estudiante@uis.edu.co">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="login-password" class="form-label">Contraseña</label>
+                                        <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary">Ingresar</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Panel de Registro -->
+                            <div class="tab-pane fade" id="pane-register" role="tabpanel">
+                                <form id="register-form">
+                                    <div class="mb-3">
+                                        <label for="reg-nombre" class="form-label">Nombres</label>
+                                        <input type="text" id="reg-nombre" class="form-control" required placeholder="Carlos">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="reg-apellido" class="form-label">Apellidos</label>
+                                        <input type="text" id="reg-apellido" class="form-control" required placeholder="Sanchez">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="reg-codigo" class="form-label">Código Estudiantil</label>
+                                        <input type="text" id="reg-codigo" class="form-control" required placeholder="2200123">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="reg-email" class="form-label">Correo Institucional</label>
+                                        <input type="email" id="reg-email" class="form-control" required placeholder="carlos@uis.edu.co">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="reg-password" class="form-label">Contraseña</label>
+                                        <input type="password" id="reg-password" class="form-control" required minlength="6" placeholder="••••••••">
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-success">Crear Cuenta</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Bootstrap 5 JS Bundle (incluye Popper para tooltips/dropdowns) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Entrypoint JS tipo Módulo -->
+    <script type="module" src="./js/app.js"></script>
+</body>
 </html>
