@@ -59,6 +59,18 @@ public class AuthService {
         );
         String token = jwtService.generateToken(userDetails);
         return new AuthResponseDTO(token, estudiante.getEmail());
-
     }
+
+    public EstudianteResponseDTO getEstudianteByEmail(String email) {
+        var estudiante = estudianteRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado"));
+        return EstudianteResponseDTO.builder()
+                .id(estudiante.getId())
+                .email(estudiante.getEmail())
+                .nombre(estudiante.getNombre())
+                .apellido(estudiante.getApellido())
+                .codigo(estudiante.getCodigo())
+                .build();
+    }
+
 }

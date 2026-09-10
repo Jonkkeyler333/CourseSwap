@@ -33,7 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         // Omite la ejecución del filtro en los endpoints públicos de auth
-        return request.getServletPath().startsWith("/api/auth");
+        return request.getServletPath().startsWith("/api/auth") || request.getServletPath().startsWith("/api/web") || request.getServletPath().startsWith("/v3/api-docs") || request.getServletPath().startsWith("/swagger-ui") || request.getServletPath().startsWith("/swagger-ui.html");
     }
 
     @Override
