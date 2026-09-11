@@ -1,9 +1,190 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Dashboard</title>
-    </head>
-    <body>
-        <p1>Hola bro</p1>
-    </body>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourseSwap - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+        <div class="container py-2">
+            <a class="navbar-brand fw-bold text-primary" href="./dashboard.html">CourseSwap</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#dashboardNavigation"
+                    aria-controls="dashboardNavigation" aria-expanded="false" aria-label="Mostrar navegación">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="dashboardNavigation">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#dashboard-home">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#enrollment-section" id="adjust-enrollment-link">Ajustar matrícula</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#search-requests-section" id="search-requests-link">Buscar solicitudes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#my-requests-section" id="my-requests-link">Mis solicitudes</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="small text-secondary d-none d-md-inline" id="navbar-user-name">Estudiante</span>
+                    <button class="btn btn-outline-danger btn-sm" type="button" id="logout-button">Cerrar sesión</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4 py-lg-5" id="dashboard-home">
+        <section class="mb-4" aria-labelledby="welcome-title">
+            <div class="row align-items-end g-3">
+                <div class="col-lg-8">
+                    <p class="text-primary fw-semibold mb-2">Panel principal</p>
+                    <h1 class="display-6 fw-bold mb-2" id="welcome-title">Hola, <span id="user-name">estudiante</span></h1>
+                    <p class="text-secondary mb-0">Gestiona tu matrícula y encuentra intercambios de grupo con otros estudiantes UIS.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <span class="badge text-bg-light border text-secondary px-3 py-2" id="user-code">Código: --</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-4" aria-labelledby="match-title">
+            <div class="card border-0 shadow-sm" id="match-card">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3">
+                        <div class="d-flex gap-3">
+                            <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
+                                <span class="fw-bold">✓</span>
+                            </div>
+                            <div>
+                                <p class="text-success fw-semibold mb-1" id="match-status">Match encontrado</p>
+                                <h2 class="h4 mb-1" id="match-title">Tienes un intercambio disponible</h2>
+                                <p class="text-secondary mb-0" id="match-description">Revisa la información de la persona y confirma si deseas continuar.</p>
+                            </div>
+                        </div>
+                        <span class="badge text-bg-success align-self-start" id="match-state">Activo</span>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="row g-4" id="match-details">
+                        <div class="col-md-4">
+                            <p class="small text-uppercase text-secondary fw-semibold mb-1">Contraparte</p>
+                            <p class="mb-0 fw-semibold" id="match-student-name">Nombre del estudiante</p>
+                            <p class="small text-secondary mb-0" id="match-student-code">Código: --</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="small text-uppercase text-secondary fw-semibold mb-1">Materia</p>
+                            <p class="mb-0 fw-semibold" id="match-course-name">Materia pendiente</p>
+                            <p class="small text-secondary mb-0" id="match-course-code">Código: --</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="small text-uppercase text-secondary fw-semibold mb-1">Intercambio</p>
+                            <p class="mb-0" id="match-course-groups"><span class="fw-semibold">Grupo --</span> <span class="text-secondary">por</span> <span class="fw-semibold">Grupo --</span></p>
+                            <p class="small text-secondary mb-0">Cambio de grupo</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4" id="match-actions">
+                        <button class="btn btn-success" type="button" id="confirm-match-button">Confirmar match</button>
+                        <button class="btn btn-outline-secondary" type="button" id="reject-match-button">Revisar después</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-light border shadow-sm d-none" role="status" id="empty-match-state">
+                <div class="d-flex gap-3 align-items-center">
+                    <span class="text-primary fw-bold">i</span>
+                    <div>
+                        <p class="fw-semibold mb-1">Todavía no tienes matches</p>
+                        <p class="text-secondary mb-0">Publica una solicitud para que podamos encontrar un intercambio compatible.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-4" aria-labelledby="quick-actions-title">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 mb-0" id="quick-actions-title">Acciones rápidas</h2>
+                <span class="small text-secondary">Gestiona tu proceso de intercambio</span>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-4" id="enrollment-section">
+                    <a class="card h-100 text-decoration-none border-0 shadow-sm" href="#" id="enrollment-action">
+                        <div class="card-body p-4">
+                            <span class="badge text-bg-primary mb-3">01</span>
+                            <h3 class="h5 text-dark">Ajustar matrícula</h3>
+                            <p class="text-secondary mb-0">Registra o actualiza las materias y grupos de tu matrícula actual.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4" id="search-requests-section">
+                    <a class="card h-100 text-decoration-none border-0 shadow-sm" href="#" id="search-requests-action">
+                        <div class="card-body p-4">
+                            <span class="badge text-bg-primary mb-3">02</span>
+                            <h3 class="h5 text-dark">Buscar solicitudes</h3>
+                            <p class="text-secondary mb-0">Explora solicitudes propuestas y encuentra un intercambio compatible.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4" id="my-requests-section">
+                    <a class="card h-100 text-decoration-none border-0 shadow-sm" href="#" id="my-requests-action">
+                        <div class="card-body p-4">
+                            <span class="badge text-bg-primary mb-3">03</span>
+                            <h3 class="h5 text-dark">Mis solicitudes</h3>
+                            <p class="text-secondary mb-0">Consulta el estado y la prioridad de tus solicitudes de cambio.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section aria-labelledby="summary-title">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 mb-0" id="summary-title">Resumen</h2>
+                <span class="small text-secondary" id="last-update">Última actualización: --</span>
+            </div>
+            <div class="row g-3">
+                <div class="col-sm-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <p class="small text-secondary mb-2">Materias registradas</p>
+                            <p class="display-6 fw-bold mb-0" id="enrollment-count">--</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <p class="small text-secondary mb-2">Solicitudes activas</p>
+                            <p class="display-6 fw-bold mb-0" id="active-requests-count">--</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <p class="small text-secondary mb-2">Matches pendientes</p>
+                            <p class="display-6 fw-bold mb-0" id="pending-matches-count">--</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-top bg-white mt-4">
+        <div class="container py-3">
+            <p class="small text-secondary mb-0">CourseSwap · Intercambio de grupos de materias UIS</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="./js/app.js"></script>
+</body>
 </html>

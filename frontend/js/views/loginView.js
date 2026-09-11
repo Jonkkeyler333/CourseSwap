@@ -19,6 +19,10 @@ export const initLoginView = () => {
             window.location.href = './dashboard.html'
         } catch (error) {
             showAlert(error.message || 'Error al iniciar sesion', 'danger')
+            setTimeout(() => {
+                showAlert(null, null);
+            }, 5000);
+            
         }
     })
 
@@ -36,9 +40,9 @@ export const initLoginView = () => {
 
         try {
             await AuthService.register(newUserData);
-            showAlert('Cuenta creada exitosamente', 'success');
+            showAlert('Cuenta creada exitosamente. Inicia sesion para continuar.', 'success');
             registerForm.reset();
-            const loginTab = new bootstrap.Tab(document.getElementById('login-tab'));
+            const loginTab = new bootstrap.Tab(document.getElementById('tab-login'));
             loginTab.show();
         } catch (error) {
             showAlert(error.message || 'Error al crear cuenta', 'danger');

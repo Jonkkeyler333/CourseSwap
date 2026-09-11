@@ -22,7 +22,7 @@ export const AuthService = {
     },
 
     async me() {
-        return await fetchAPI('/auth/me', {
+        return await fetchAPI('/estudiantes/me', {
             method: 'GET'
         });
     },
