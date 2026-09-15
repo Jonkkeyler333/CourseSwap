@@ -198,6 +198,160 @@ SELECT id, 'C1', 'Gabriel Arias'
 FROM materia
 WHERE codigo = '28091';
 
+-- =========================================================
+-- GRUPOS ADICIONALES (mínimo 2 por materia)
+-- =========================================================
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'B2', 'Ana María Torres'
+FROM materia m
+WHERE m.codigo = '22948';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'C2', 'Sofía Ramírez'
+FROM materia m
+WHERE m.codigo = '22979';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'F2', 'Pablo Méndez'
+FROM materia m
+WHERE m.codigo = '22951';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'B2', 'Patricia Rojas'
+FROM materia m
+WHERE m.codigo = '22954';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'E2', 'Alejandra Viera'
+FROM materia m
+WHERE m.codigo = '22955';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'G2', 'Cristóbal Ortega'
+FROM materia m
+WHERE m.codigo = '22957';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'C2', 'María José Lora'
+FROM materia m
+WHERE m.codigo = '22958';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'E2', 'Óscar Ibarra'
+FROM materia m
+WHERE m.codigo = '22959';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'G2', 'Valentina Ruiz'
+FROM materia m
+WHERE m.codigo = '22960';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'B2', 'Roberto Solís'
+FROM materia m
+WHERE m.codigo = '22961';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'D2', 'Ignacio Quintero'
+FROM materia m
+WHERE m.codigo = '22963';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'C2', 'Paola Cárdenas'
+FROM materia m
+WHERE m.codigo = '22965';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'E2', 'Mónica Flores'
+FROM materia m
+WHERE m.codigo = '22966';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'G2', 'Néstor Álvarez'
+FROM materia m
+WHERE m.codigo = '22967';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'B2', 'Daniela Serrano'
+FROM materia m
+WHERE m.codigo = '22968';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'F2', 'Rubén Castro'
+FROM materia m
+WHERE m.codigo = '22969';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'G2', 'Laura Pacheco'
+FROM materia m
+WHERE m.codigo = '22970';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'E2', 'Hugo Beltrán'
+FROM materia m
+WHERE m.codigo = '22971';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'B2', 'Clara Villalobos'
+FROM materia m
+WHERE m.codigo = '22972';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'F2', 'Sergio Morán'
+FROM materia m
+WHERE m.codigo = '22973';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'C2', 'Isabel Salgado'
+FROM materia m
+WHERE m.codigo = '22974';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'E2', 'Emilio Castañeda'
+FROM materia m
+WHERE m.codigo = '22975';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'F2', 'Carmen Duarte'
+FROM materia m
+WHERE m.codigo = '22977';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'B2', 'Felipe Naranjo'
+FROM materia m
+WHERE m.codigo = '21857';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'C2', 'Andrea Chacón'
+FROM materia m
+WHERE m.codigo = '21858';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'F2', 'Javier Oliva'
+FROM materia m
+WHERE m.codigo = '24542';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'G2', 'Lorena Escobar'
+FROM materia m
+WHERE m.codigo = '24557';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'E2', 'Germán Peña'
+FROM materia m
+WHERE m.codigo = '24558';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'F2', 'María Fernanda Cortés'
+FROM materia m
+WHERE m.codigo = '27571';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT m.id, 'C2', 'Eduardo Bernal'
+FROM materia m
+WHERE m.codigo = '28091';
+
 
 -- =========================================================
 -- HORARIOS
@@ -573,3 +727,364 @@ SELECT g.id, 'Jueves', '10:00', '12:00'
 FROM grupo g
          JOIN materia m ON m.id = g.materia_id
 WHERE m.codigo = '28091' AND g.nombre = 'C1';
+
+-- Grupos adicionales: segunda opción por materia
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '08:00', '10:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22948' AND g.nombre = 'B2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '08:00', '10:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22948' AND g.nombre = 'B2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '10:00', '12:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22979' AND g.nombre = 'C2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '10:00', '12:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22979' AND g.nombre = 'C2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '16:00', '18:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22951' AND g.nombre = 'F2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '16:00', '18:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22951' AND g.nombre = 'F2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '08:00', '10:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22954' AND g.nombre = 'B2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '08:00', '10:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22954' AND g.nombre = 'B2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '14:00', '16:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22955' AND g.nombre = 'E2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '14:00', '16:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22955' AND g.nombre = 'E2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '18:00', '20:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22957' AND g.nombre = 'G2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '18:00', '20:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22957' AND g.nombre = 'G2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '10:00', '12:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22958' AND g.nombre = 'C2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '10:00', '12:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22958' AND g.nombre = 'C2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '14:00', '16:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22959' AND g.nombre = 'E2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '14:00', '16:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22959' AND g.nombre = 'E2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '18:00', '20:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22960' AND g.nombre = 'G2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '18:00', '20:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22960' AND g.nombre = 'G2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '08:00', '10:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22961' AND g.nombre = 'B2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '08:00', '10:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22961' AND g.nombre = 'B2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '12:00', '14:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22963' AND g.nombre = 'D2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '12:00', '14:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22963' AND g.nombre = 'D2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '10:00', '12:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22965' AND g.nombre = 'C2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '10:00', '12:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22965' AND g.nombre = 'C2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '14:00', '16:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22966' AND g.nombre = 'E2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '14:00', '16:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22966' AND g.nombre = 'E2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '18:00', '20:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22967' AND g.nombre = 'G2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '18:00', '20:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22967' AND g.nombre = 'G2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '08:00', '10:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22968' AND g.nombre = 'B2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '08:00', '10:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22968' AND g.nombre = 'B2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '16:00', '18:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22969' AND g.nombre = 'F2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '16:00', '18:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22969' AND g.nombre = 'F2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '18:00', '20:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22970' AND g.nombre = 'G2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '18:00', '20:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22970' AND g.nombre = 'G2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '14:00', '16:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22971' AND g.nombre = 'E2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '14:00', '16:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22971' AND g.nombre = 'E2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '08:00', '10:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22972' AND g.nombre = 'B2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '08:00', '10:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22972' AND g.nombre = 'B2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '16:00', '18:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22973' AND g.nombre = 'F2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '16:00', '18:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22973' AND g.nombre = 'F2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '10:00', '12:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22974' AND g.nombre = 'C2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '10:00', '12:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22974' AND g.nombre = 'C2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '14:00', '16:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22975' AND g.nombre = 'E2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '14:00', '16:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22975' AND g.nombre = 'E2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '16:00', '18:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22977' AND g.nombre = 'F2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '16:00', '18:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22977' AND g.nombre = 'F2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '08:00', '10:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '21857' AND g.nombre = 'B2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '08:00', '10:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '21857' AND g.nombre = 'B2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '10:00', '12:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '21858' AND g.nombre = 'C2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '10:00', '12:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '21858' AND g.nombre = 'C2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '16:00', '18:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '24542' AND g.nombre = 'F2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '16:00', '18:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '24542' AND g.nombre = 'F2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '18:00', '20:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '24557' AND g.nombre = 'G2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '18:00', '20:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '24557' AND g.nombre = 'G2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '14:00', '16:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '24558' AND g.nombre = 'E2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '14:00', '16:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '24558' AND g.nombre = 'E2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '16:00', '18:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '27571' AND g.nombre = 'F2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '16:00', '18:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '27571' AND g.nombre = 'F2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Martes', '10:00', '12:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '28091' AND g.nombre = 'C2';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Jueves', '10:00', '12:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '28091' AND g.nombre = 'C2';

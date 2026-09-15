@@ -2,6 +2,7 @@ package co.edu.uis.entornos.course_swap.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,15 +17,14 @@ public class SolicitudRequestDTO {
     private String codigo;
 
     @Schema(description = "Grupo actual del estudiante", example = "1")
-    @NotBlank
+    @NotNull
     private Long grupoActualId;
 
     @Schema(description = "Grupo al que el estudiante desea cambiarse", example = "2")
-    @NotBlank
+    @NotNull
     private Long grupoNuevoId;
 
-    @Schema(description = "codigo de la materia", example = "224591")
-    @Size(min = 6, max = 6, message = "El código de la materia debe tener 6 caracteres")
-    @NotBlank
-    private String materiaId;
+    @Schema(description = "id de la materia", example = "1")
+    @NotNull
+    private Long materiaId;
 }
