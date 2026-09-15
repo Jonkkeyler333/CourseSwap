@@ -4,6 +4,7 @@ import co.edu.uis.entornos.course_swap.dto.AuthResponseDTO;
 import co.edu.uis.entornos.course_swap.dto.EstudianteRegisterDTO;
 import co.edu.uis.entornos.course_swap.dto.EstudianteResponseDTO;
 import co.edu.uis.entornos.course_swap.dto.LoginRequestDTO;
+import co.edu.uis.entornos.course_swap.exception.ResourceNotFoundException;
 import co.edu.uis.entornos.course_swap.model.Estudiante;
 import co.edu.uis.entornos.course_swap.repository.EstudianteRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -51,7 +52,7 @@ public class AuthService {
     public AuthResponseDTO loginUser(LoginRequestDTO loginRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
         var estudiante = estudianteRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Estudiante no encontrado"));
         UserDetails userDetails = new User(
                 estudiante.getEmail(),
                 estudiante.getPassword(),
@@ -63,7 +64,7 @@ public class AuthService {
 
     public EstudianteResponseDTO getEstudianteByEmail(String email) {
         var estudiante = estudianteRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Estudiante no encontrado"));
         return EstudianteResponseDTO.builder()
                 .id(estudiante.getId())
                 .email(estudiante.getEmail())

@@ -23,4 +23,8 @@ public class HorarioResponseDTO {
     private LocalTime horaInicio;
     @Schema(description = "Hora de finalización del horario", example = "10:00")
     private LocalTime horaFin;
+    @Schema(description = "ID del grupo")
+    private Long idGrupo;
+    @Schema(description = "ID materia")
+    private Long idMateria;
 }

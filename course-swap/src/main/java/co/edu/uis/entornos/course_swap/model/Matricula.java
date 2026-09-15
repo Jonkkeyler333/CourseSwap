@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -32,6 +33,7 @@ public class Matricula {
     @JoinColumn(name = "materia_id", nullable = false, referencedColumnName = "id")
     private Materia materia;
 
+    @CreationTimestamp
     @Column(name = "fecha_registro", nullable = false)
     private LocalDateTime fechaRegistro;
 }

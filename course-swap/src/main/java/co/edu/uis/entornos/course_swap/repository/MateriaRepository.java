@@ -13,7 +13,7 @@ public interface MateriaRepository extends JpaRepository<Materia, Long> {
     Optional<Materia> findByCodigo(String codigo);
     List<Materia> findByNombreContainingIgnoreCase(String nombre);
 
-    @Query("SELECT new co.edu.uis.entornos.course_swap.dto.HorarioResponseDTO( m.nombre, m.codigo, g.nombre, g.profesor, h.dia, h.horaInicio, h.horaFin)" +
+    @Query("SELECT new co.edu.uis.entornos.course_swap.dto.HorarioResponseDTO( m.nombre, m.codigo, g.nombre, g.profesor, h.dia, h.horaInicio, h.horaFin, g.id, m.id)" +
             " FROM Grupo g" +
             " JOIN g.materia m" +
             " JOIN HorarioGrupo h ON h.grupo = g" +

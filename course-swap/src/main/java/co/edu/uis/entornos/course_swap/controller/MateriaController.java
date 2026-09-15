@@ -11,10 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,25 +25,28 @@ public class MateriaController {
         this.materiaService = materiaService;
     }
 
-    @GetMapping("/codigo")
+    @GetMapping("/{codigo}")
     @Operation(summary = "Buscar materia por código")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Materia encontrada",
                     content = @Content(schema = @Schema(implementation = Materia.class))),
             @ApiResponse(responseCode = "400", description = "Parámetro inválido o materia no encontrada")
     })
-    public ResponseEntity<Materia> getByCodigo(@RequestParam String codigo) {
+    public ResponseEntity<Materia> getByCodigo(@PathVariable String codigo) {
         return ResponseEntity.ok(materiaService.getByCodigo(codigo));
     }
 
-    @GetMapping("/nombre")
+    @GetMapping("/")
     @Operation(summary = "Buscar materias por nombre (ignora mayúsculas/minúsculas)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Materias encontradas",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Materia.class)))),
             @ApiResponse(responseCode = "400", description = "Parámetro inválido o sin resultados")
     })
-    public ResponseEntity<List<Materia>> getByNombre(@RequestParam String nombre) {
+    public ResponseEntity<List<Materia>> getByNombre(@RequestParam(required = false) String nombre) {
+        if (nombre == null){
+            return ResponseEntity.ok(materiaService.getAllMaterias());
+        }
         return ResponseEntity.ok(materiaService.searchByNombre(nombre));
     }
 
