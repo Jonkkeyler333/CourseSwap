@@ -1,8 +1,10 @@
 package co.edu.uis.entornos.course_swap.controller;
 
 import co.edu.uis.entornos.course_swap.dto.HorarioResponseDTO;
+import co.edu.uis.entornos.course_swap.dto.SolicitudResponseDTO;
 import co.edu.uis.entornos.course_swap.model.Materia;
 import co.edu.uis.entornos.course_swap.service.MateriaService;
+import co.edu.uis.entornos.course_swap.service.SolicitudCambioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,20 +22,33 @@ import java.util.List;
 @Tag(name = "Materias", description = "Endpoints para consulta de materias y horarios")
 public class MateriaController {
     private final MateriaService materiaService;
+    private final SolicitudCambioService solicitudCambioService;
 
-    public MateriaController(MateriaService materiaService) {
+    public MateriaController(MateriaService materiaService, SolicitudCambioService solicitudCambioService) {
         this.materiaService = materiaService;
+        this.solicitudCambioService = solicitudCambioService;
     }
 
-    @GetMapping("/{codigo}")
-    @Operation(summary = "Buscar materia por código")
+    @GetMapping("/find")
+    @Operation(summary = "Buscar materia por filtro de código")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Materia encontrada",
                     content = @Content(schema = @Schema(implementation = Materia.class))),
-            @ApiResponse(responseCode = "400", description = "Parámetro inválido o materia no encontrada")
+            @ApiResponse(responseCode = "404", description = "Parámetro inválido o materia no encontrada")
     })
-    public ResponseEntity<Materia> getByCodigo(@PathVariable String codigo) {
+    public ResponseEntity<Materia> getByCodigo(@RequestParam String codigo) {
         return ResponseEntity.ok(materiaService.getByCodigo(codigo));
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Buscar materia por ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Materia encontrada",
+                    content = @Content(schema = @Schema(implementation = Materia.class))),
+            @ApiResponse(responseCode = "404", description = "Parámetro inválido o materia no encontrada")
+    })
+    public ResponseEntity<Materia> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(materiaService.getMateriaById(id));
     }
 
     @GetMapping("/")
@@ -41,7 +56,7 @@ public class MateriaController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Materias encontradas",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Materia.class)))),
-            @ApiResponse(responseCode = "400", description = "Parámetro inválido o sin resultados")
+            @ApiResponse(responseCode = "404", description = "Parámetro inválido o sin resultados")
     })
     public ResponseEntity<List<Materia>> getByNombre(@RequestParam(required = false) String nombre) {
         if (nombre == null){
@@ -55,9 +70,21 @@ public class MateriaController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Horario encontrado",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = HorarioResponseDTO.class)))),
-            @ApiResponse(responseCode = "400", description = "Parámetro inválido o materia sin horario")
+            @ApiResponse(responseCode = "404", description = "Parámetro inválido o materia sin horario")
     })
     public ResponseEntity<List<HorarioResponseDTO>> getHorarioByCodigo(@RequestParam String codigo) {
         return ResponseEntity.ok(materiaService.getMateriaHorarioByCodigo(codigo));
     }
+
+    @GetMapping("/{codigo}/solicitudes")
+    @Operation(summary = "Obtener solicitudes de cambio de grupo por código de materia")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Solicitudes encontradas",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = SolicitudResponseDTO.class)))),
+            @ApiResponse(responseCode = "400", description = "Parámetro inválido o sin resultados")
+    })
+    public ResponseEntity<List<SolicitudResponseDTO>> getSolicitudesByMateria(@PathVariable String codigo) {
+        return ResponseEntity.ok(solicitudCambioService.getSolicitudesByMateria(codigo));
+    }
+
 }

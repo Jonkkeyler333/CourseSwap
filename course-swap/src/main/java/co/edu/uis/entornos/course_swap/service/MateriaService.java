@@ -49,6 +49,11 @@ public class MateriaService {
         return horarios;
     }
 
+    public Materia getMateriaById(Long id) {
+        return materiaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe una materia con id: " + id));
+    }
+
     private String normalizeInput(String input, String errorMessage) {
         if (input == null || input.trim().isEmpty()) {
             throw new IllegalArgumentException(errorMessage);

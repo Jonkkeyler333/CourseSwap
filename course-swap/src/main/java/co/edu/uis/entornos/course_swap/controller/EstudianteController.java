@@ -2,9 +2,11 @@ package co.edu.uis.entornos.course_swap.controller;
 
 import co.edu.uis.entornos.course_swap.dto.EstudianteResponseDTO;
 import co.edu.uis.entornos.course_swap.dto.MatriculaResponseDTO;
+import co.edu.uis.entornos.course_swap.dto.SolicitudResponseDTO;
 import co.edu.uis.entornos.course_swap.service.MatriculaService;
 import co.edu.uis.entornos.course_swap.service.AuthService;
 import co.edu.uis.entornos.course_swap.service.MatriculaService;
+import co.edu.uis.entornos.course_swap.service.SolicitudCambioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,10 +30,12 @@ public class EstudianteController {
 
     private final AuthService authService;
     private final MatriculaService matriculaService;
+    private final SolicitudCambioService solicitudCambioService;
 
-    public EstudianteController(AuthService authService, MatriculaService matriculaService) {
+    public EstudianteController(AuthService authService, MatriculaService matriculaService, SolicitudCambioService solicitudCambioService) {
         this.authService = authService;
         this.matriculaService = matriculaService;
+        this.solicitudCambioService = solicitudCambioService;
     }
 
     @GetMapping("/me")
@@ -57,6 +61,18 @@ public class EstudianteController {
     public ResponseEntity<List<MatriculaResponseDTO>> getMatriculas(@PathVariable Long id) {
         List<MatriculaResponseDTO> matriculas = matriculaService.getMatriculasByEstudianteId(id);
         return ResponseEntity.ok(matriculas);
+    }
+
+    @GetMapping("/{id}/solicitudes")
+    @Operation(summary = "Obtener las solicitudes de cambio de un estudiante")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Solicitudes del estudiante",
+                    content = @Content(schema = @Schema(implementation = SolicitudResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Estudiante no encontrado")
+    })
+    public ResponseEntity<List<SolicitudResponseDTO>> getSolicitudes(@PathVariable Long id) {
+        List<SolicitudResponseDTO> solicitudes = solicitudCambioService.getSolicitudesByEstudiante(id);
+        return ResponseEntity.ok(solicitudes);
     }
 
 }
