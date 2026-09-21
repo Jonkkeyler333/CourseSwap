@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -25,6 +29,23 @@ public class MatchPropuesto {
     private SolicitudCambio solicitudCambioB;
 
     @Enumerated(EnumType.STRING)
+    @ColumnDefault("'ACTIVO'")
     @Column(name = "estado", nullable = false, length = 20)
     private MatchEstados estado;
+
+    @Column(name = "fecha_creacion", nullable = false)
+    @CreationTimestamp
+    private LocalDate fechaCreacion;
+
+    @Column(name = "fecha_actualizacion")
+    private LocalDate fechaActualizacion;
+
+    @Column(name = "confirmado_por_a", nullable = false)
+    @ColumnDefault("false")
+    private boolean confirmadoPorA;
+
+    @Column(name = "confirmado_por_b", nullable = false)
+    @ColumnDefault("false")
+    private boolean confirmadoPorB;
+
 }

@@ -1,5 +1,7 @@
 package co.edu.uis.entornos.course_swap.repository;
 
+import co.edu.uis.entornos.course_swap.model.Estudiante;
+import co.edu.uis.entornos.course_swap.model.Materia;
 import co.edu.uis.entornos.course_swap.model.Matricula;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
+    Optional<Matricula> findByEstudianteAndMateria(Estudiante estudiante, Materia materia);
     Optional<List<Matricula>> findByEstudianteId(Long estudianteId);
 
     boolean existsByIdAndMateriaId(Long matriculaId, Long materiaId);

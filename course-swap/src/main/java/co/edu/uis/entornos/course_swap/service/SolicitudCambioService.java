@@ -22,13 +22,20 @@ public class SolicitudCambioService {
     private final EstudianteRepository estudianteRepository;
     private final GrupoRespository grupoRespository;
     private final MateriaRepository materiaRepository;
+    private final MatchRepository matchRepository;
 
-    public SolicitudCambioService(SolicitudCambioRepository solicitudCambioRepository, MatriculaRepository matriculaRepository, EstudianteRepository estudianteRepository, GrupoRespository grupoRespository, MateriaRepository materiaRepository) {
+    public SolicitudCambioService(SolicitudCambioRepository solicitudCambioRepository,
+                                  MatriculaRepository matriculaRepository,
+                                  EstudianteRepository estudianteRepository,
+                                  GrupoRespository grupoRespository,
+                                  MateriaRepository materiaRepository,
+                                  MatchRepository matchRepository) {
         this.solicitudCambioRepository = solicitudCambioRepository;
         this.matriculaRepository = matriculaRepository;
         this.estudianteRepository = estudianteRepository;
         this.grupoRespository = grupoRespository;
         this.materiaRepository = materiaRepository;
+        this.matchRepository = matchRepository;
     }
 
     @Transactional
@@ -54,7 +61,25 @@ public class SolicitudCambioService {
         solicitudCambio.setGrupoActual(grupoActual);
         solicitudCambio.setGrupoDeseado(grupoDeseado);
         solicitudCambio.setEstado(SolicitudEstados.PROPUESTA);
-        solicitudCambio = solicitudCambioRepository.save(solicitudCambio);
+        solicitudCambio = solicitudCambioRepository.saveAndFlush(solicitudCambio);
+        Optional<SolicitudCambio> matchOpt = solicitudCambioRepository.findMatch(solicitudCambio.getId());
+        if (matchOpt.isPresent()) {
+            SolicitudCambio solicitudMatch = matchOpt.get();
+
+            solicitudCambio.setEstado(SolicitudEstados.MATCHED);
+            solicitudMatch.setEstado(SolicitudEstados.MATCHED);
+            solicitudMatch.setFechaActualizacion(LocalDateTime.now());
+            solicitudCambio.setFechaActualizacion(LocalDateTime.now());
+            solicitudCambioRepository.save(solicitudCambio);
+            solicitudCambioRepository.save(solicitudMatch);
+
+            MatchPropuesto newMatch = new MatchPropuesto();
+
+            newMatch.setSolicitudCambioA(solicitudCambio);
+            newMatch.setSolicitudCambioB(solicitudMatch);
+            newMatch.setEstado(MatchEstados.ACTIVO);
+            matchRepository.save(newMatch);
+        }
         return mapper(solicitudCambio);
     }
 

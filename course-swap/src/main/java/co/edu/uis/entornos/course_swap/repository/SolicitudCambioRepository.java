@@ -4,7 +4,9 @@ import co.edu.uis.entornos.course_swap.model.Estudiante;
 import co.edu.uis.entornos.course_swap.model.Materia;
 import co.edu.uis.entornos.course_swap.model.SolicitudCambio;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import jakarta.persistence.LockModeType;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +16,7 @@ public interface SolicitudCambioRepository extends JpaRepository<SolicitudCambio
     Optional<List<SolicitudCambio>> findByMateria(Materia materia);
     Optional<List<SolicitudCambio>> findByEstudiante(Estudiante estudiante);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT sc2 FROM SolicitudCambio sc1 " +
             "JOIN SolicitudCambio sc2 ON sc1.materia = sc2.materia " +
             "WHERE sc1.id = :solicitudId" +
