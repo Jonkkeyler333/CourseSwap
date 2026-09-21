@@ -31,4 +31,8 @@ public class MatchResponseDTO {
     private String nombreGrupoA;
     @Schema(description = "Nombre del grupo B", example = "B1")
     private String nombreGrupoB;
+    @Schema(description = "Nombre del estudiante A", example = "Juan Perez")
+    private String nombreEstudianteA;
+    @Schema(description = "Nombre del estudiante B", example = "Maria Gomez")
+    private String nombreEstudianteB;
 }

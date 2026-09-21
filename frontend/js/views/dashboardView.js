@@ -15,7 +15,7 @@ export const initDashboardView = () => {
     const userCodeElement = document.getElementById("user-code");
     AuthService.me().then(userData => {
         console.log(userData)
-        console.log('puto')
+        // console.log('puto')
         userNameElement.textContent = userData.nombre;
         navBarUserEmailElement.textContent = userData.email;
         userCodeElement.textContent = "Código: " + userData.codigo;

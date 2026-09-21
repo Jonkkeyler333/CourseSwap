@@ -119,7 +119,9 @@ public class MatchService {
                 match.isConfirmadoPorB(),
                 match.getSolicitudCambioA().getMateria().getNombre(),
                 match.getSolicitudCambioA().getGrupoDeseado().getNombre(),
-                match.getSolicitudCambioB().getGrupoDeseado().getNombre()
+                match.getSolicitudCambioB().getGrupoDeseado().getNombre(),
+                match.getSolicitudCambioA().getEstudiante().getNombre() + " " + match.getSolicitudCambioA().getEstudiante().getApellido(),
+                match.getSolicitudCambioB().getEstudiante().getNombre() + " " + match.getSolicitudCambioB().getEstudiante().getApellido()
         );
     }
 

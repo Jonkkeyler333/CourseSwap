@@ -1,4 +1,5 @@
 export const CONFIG = {
     API_BASE_URL : 'http://localhost:8080/api',
     TOKEN_KEY : 'courseswap-token',
+    USER_KEY : 'courseswap-user',
 }
