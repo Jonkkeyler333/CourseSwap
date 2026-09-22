@@ -1,5 +1,7 @@
 import { SolicitudesService } from "../solicitudes.js";
 import { MatriculaService } from "../matricula.js";
+import { MateriaService } from "../materias.js";
+import { AuthService } from "../auth.js";
 
 export const initSolicitudesView = async () => {
   const requestList = document.getElementById("requests-list");
@@ -8,21 +10,55 @@ export const initSolicitudesView = async () => {
   const messageElement = document.getElementById("request-form-alert");
   const selectMateria = document.getElementById("request-materia");
   const grupoActualElement = document.getElementById("request-current-group");
+  const grupoDeseadoElement = document.getElementById("request-target-group");
+  const codigoEstInput = document.getElementById("request-codigo");
+  const formCreate = document.getElementById("new-request-form");
+  const logoutButton = document.getElementById("logout-button");
 
-//   <div class="mb-3">
-//     <label class="form-label" for="request-materia">
-//       Materia
-//     </label>
-//     <select class="form-select" id="request-materia" name="materiaId" required>
-//       <option value="" selected disabled>
-//         Selecciona una materia
-//       </option>
-//     </select>
-//     <div class="form-text">
-//       Las opciones se cargarán con las materias disponibles.
-//     </div>
-//   </div>; listMateriaElement : html que hay
+  logoutButton.addEventListener("click", async () => {
+    try {
+      await AuthService.logout();
+      window.location.href = "./index.html";
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  });
 
+  let userData = null;
+
+  try {
+    userData = await AuthService.me();
+    console.log("User data fetched successfully:", userData);
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    messageElement.textContent = "Error al obtener los datos del usuario. Por favor, inténtalo de nuevo.";
+    messageElement.className = "alert alert-danger";
+  }
+
+  formCreate.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (codigoEstInput.value !== userData.codigo) {
+        messageElement.textContent = "El código ingresado no coincide con tu código de estudiante.";
+        messageElement.className = "alert alert-danger";
+        setTimeout(() => {
+            messageElement.textContent = "";
+            messageElement.className = "";
+        }, 5000);
+        return;
+    }
+
+    
+    const grupoActualId = document.getElementById("grupoActualId").value;
+
+    const grupoDeseadoId = grupoDeseadoElement.value;
+
+    console.log("Código:", codigoEstInput.value);
+    console.log("Materia:", selectMateria.value);
+    console.log("Grupo actual:", grupoActualId);
+    console.log("Grupo deseado:", grupoDeseadoId);
+  })
+//   let grupoActual = undefined;
   try {
     const solicitudes = await SolicitudesService.getStudentSolicitudes();
     const matriculasStudent = await MatriculaService.getMatricula()
@@ -54,11 +90,24 @@ export const initSolicitudesView = async () => {
           (materia) => materia.materiaId === parseInt(materiaId),
         );
         if (matriculaFind) {
-            grupoActualElement.innerHTML = `<input readonly class="form-control" type="text" value="${matriculaFind.grupoNombre}" />`;
+            console.log('Matricula encontrada:', matriculaFind);
+            // grupoActual = matriculaFind.grupoNombre;
+            grupoActualElement.innerHTML = `<input readonly class="form-control" id="grupoActual" type="text" value="${matriculaFind.grupoNombre}" />
+            <input type="hidden" id="grupoActualId" type="text" value="${matriculaFind.grupoId}" />`;
+            const horariosDisponibles = await MateriaService.getMateriaHorarios(matriculaFind.materiaCodigo);
+            const horariosDisponiblesFiltered = horariosDisponibles.filter(h => h.idGrupo !== matriculaFind.grupoId);
+            grupoDeseadoElement.innerHTML = `
+                <option value="" selected disabled>Selecciona un grupo</option>
+                ${horariosDisponiblesFiltered.map(h => `<option value="${h.idGrupo}">${h.grupo} - dia: ${h.dia} - hora: ${h.horaInicio} - hora fin: ${h.horaFin} - profesor: ${h.profesor}</option>`).join('')}`;
+
+        } else {
+            grupoActualElement.innerHTML = `<input readonly class="form-control" type="text" value="No se encontró el grupo actual" />`;
         }
+    })
 
     
-    })
+
+
     // matriculasStudent.forEach( (matricula) => {
     //     selectMateria.innerHTML += `<option value="${matricula.materiaId}">${matricula.materiaCodigo}: ${matricula.materiaNombre}</option>`;
     // })
