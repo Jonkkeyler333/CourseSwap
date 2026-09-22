@@ -9,9 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "solicitud_cambio", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"estudiante_id", "materia_id"})
-})
+@Table(name = "solicitud_cambio")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

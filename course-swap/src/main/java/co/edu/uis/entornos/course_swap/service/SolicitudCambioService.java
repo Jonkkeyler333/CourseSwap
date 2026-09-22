@@ -55,6 +55,20 @@ public class SolicitudCambioService {
         Grupo grupoDeseado = grupoRespository.findById(solicitud.getGrupoNuevoId())
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un grupo con id: " + solicitud.getGrupoNuevoId()));
         Materia materia = grupoActual.getMateria();
+
+        List<SolicitudCambio> solicitudesActivas =
+            solicitudCambioRepository.findByEstudianteAndMateriaAndEstadoIn(
+                estudiante,
+                materia,
+                List.of(SolicitudEstados.PROPUESTA, SolicitudEstados.MATCHED)
+            );
+
+        if (!solicitudesActivas.isEmpty()) {
+            throw new IllegalArgumentException(
+                "Ya tienes una solicitud activa para esta materia"
+            );
+        }
+
         SolicitudCambio solicitudCambio = new SolicitudCambio();
         solicitudCambio.setEstudiante(estudiante);
         solicitudCambio.setMateria(materia);

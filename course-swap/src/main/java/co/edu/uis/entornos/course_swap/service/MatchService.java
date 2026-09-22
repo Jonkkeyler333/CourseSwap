@@ -141,6 +141,8 @@ public class MatchService {
                         .nombreMateria(match.getSolicitudCambioA().getMateria().getNombre())
                         .nombreGrupoA(match.getSolicitudCambioA().getGrupoDeseado().getNombre())
                         .nombreGrupoB(match.getSolicitudCambioB().getGrupoDeseado().getNombre())
+                        .nombreEstudianteA(match.getSolicitudCambioA().getEstudiante().getNombre() + " " + match.getSolicitudCambioA().getEstudiante().getApellido())
+                        .nombreEstudianteB(match.getSolicitudCambioB().getEstudiante().getNombre() + " " + match.getSolicitudCambioB().getEstudiante().getApellido())
                         .build())
                 .toList();
         return matches;
