@@ -53,49 +53,54 @@
             </div>
         </section>
 
+         <div id="alert-message" class="alert d-none" role="alert"></div>
+
         <section class="mb-4" aria-labelledby="match-title">
-            <div class="card border-0 shadow-sm" id="match-card">
-                <div class="card-body p-4">
-                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3">
-                        <div class="d-flex gap-3">
-                            <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
-                                <span class="fw-bold">✓</span>
+            <div class="d-flex flex-column gap-3" id="match-list" aria-live="polite">
+                <div class="card border-0 shadow-sm" id="match-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3">
+                            <div class="d-flex gap-3">
+                                <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
+                                    <span class="fw-bold">✓</span>
+                                </div>
+                                <div>
+                                    <p class="text-success fw-semibold mb-1" id="match-status">Match encontrado</p>
+                                    <h2 class="h4 mb-1" id="match-title">Tienes un intercambio disponible</h2>
+                                    <p class="text-secondary mb-0" id="match-description">Revisa la información de la persona y confirma si deseas continuar.</p>
+                                </div>
                             </div>
-                            <div>
-                                <p class="text-success fw-semibold mb-1" id="match-status">Match encontrado</p>
-                                <h2 class="h4 mb-1" id="match-title">Tienes un intercambio disponible</h2>
-                                <p class="text-secondary mb-0" id="match-description">Revisa la información de la persona y confirma si deseas continuar.</p>
+                            <span class="badge text-bg-success align-self-start" id="match-state">Activo</span>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="row g-4" id="match-details">
+                            <div class="col-md-4">
+                                <p class="small text-uppercase text-secondary fw-semibold mb-1">Contraparte</p>
+                                <p class="mb-0 fw-semibold" id="match-student-name">Nombre del estudiante</p>
+                                <p class="small text-secondary mb-0" id="match-student-code">Código: --</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="small text-uppercase text-secondary fw-semibold mb-1">Materia</p>
+                                <p class="mb-0 fw-semibold" id="match-course-name">Materia pendiente</p>
+                                <p class="small text-secondary mb-0" id="match-course-code">Código: --</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="small text-uppercase text-secondary fw-semibold mb-1">Intercambio</p>
+                                <p class="mb-0" id="match-course-groups"><span class="fw-semibold">Grupo --</span> <span class="text-secondary">por</span> <span class="fw-semibold">Grupo --</span></p>
+                                <p class="small text-secondary mb-0">Cambio de grupo</p>
                             </div>
                         </div>
-                        <span class="badge text-bg-success align-self-start" id="match-state">Activo</span>
-                    </div>
 
-                    <hr class="my-4">
-
-                    <div class="row g-4" id="match-details">
-                        <div class="col-md-4">
-                            <p class="small text-uppercase text-secondary fw-semibold mb-1">Contraparte</p>
-                            <p class="mb-0 fw-semibold" id="match-student-name">Nombre del estudiante</p>
-                            <p class="small text-secondary mb-0" id="match-student-code">Código: --</p>
+                        <div class="d-flex flex-wrap gap-2 mt-4" id="match-actions">
+                            <button class="btn btn-success" type="button" id="confirm-match-button">Confirmar match</button>
+                            <!-- <button class="btn btn-outline-secondary" type="button" id="reject-match-button">Revisar después</button> -->
                         </div>
-                        <div class="col-md-4">
-                            <p class="small text-uppercase text-secondary fw-semibold mb-1">Materia</p>
-                            <p class="mb-0 fw-semibold" id="match-course-name">Materia pendiente</p>
-                            <p class="small text-secondary mb-0" id="match-course-code">Código: --</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p class="small text-uppercase text-secondary fw-semibold mb-1">Intercambio</p>
-                            <p class="mb-0" id="match-course-groups"><span class="fw-semibold">Grupo --</span> <span class="text-secondary">por</span> <span class="fw-semibold">Grupo --</span></p>
-                            <p class="small text-secondary mb-0">Cambio de grupo</p>
-                        </div>
-                    </div>
-
-                    <div class="d-flex flex-wrap gap-2 mt-4" id="match-actions">
-                        <button class="btn btn-success" type="button" id="confirm-match-button">Confirmar match</button>
-                        <button class="btn btn-outline-secondary" type="button" id="reject-match-button">Revisar después</button>
                     </div>
                 </div>
             </div>
+
 
             <div class="alert alert-light border shadow-sm d-none" role="status" id="empty-match-state">
                 <div class="d-flex gap-3 align-items-center">

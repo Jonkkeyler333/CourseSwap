@@ -5,6 +5,7 @@ import { AuthService } from "../auth.js";
 import { MatchService } from "../match.js";
 
 export const initSolicitudesView = async () => {
+  AuthService.checkAuthGuard(true);
   const requestList = document.getElementById("requests-list");
   const emptyState = document.getElementById("empty-requests-state");
   const requestCount = document.getElementById("requests-count");
@@ -109,6 +110,7 @@ export const initSolicitudesView = async () => {
         );
       }
       messageElement.textContent = `Solicitud creada exitosamente con ID: ${responseSolicitud.id}, estado: ${responseSolicitud.estado}, materia: ${responseSolicitud.nombreMateria}, grupo actual: ${responseSolicitud.nombreGrupoActual}, grupo deseado: ${responseSolicitud.nombreGrupoDeseado}`;
+      messageElement.className = "alert alert-success";
       setTimeout(() => {
         messageElement.textContent = "";
         window.location.reload();
