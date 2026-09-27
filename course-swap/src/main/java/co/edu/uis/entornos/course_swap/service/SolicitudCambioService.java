@@ -125,6 +125,7 @@ public class SolicitudCambioService {
                 .orElseThrow(() -> new ResourceNotFoundException("No existe una solicitud con id: " + newSolicitud.getSolicitudId()));
         Grupo newGrupo = grupoRespository.findById(newSolicitud.getNuevoGrupoId())
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un grupo con id: " + newSolicitud.getNuevoGrupoId()));
+        System.out.println(newGrupo.getNombre());
         solicitud.setGrupoDeseado(newGrupo);
         solicitud.setFechaActualizacion(LocalDateTime.now());
         solicitud.setEstado(SolicitudEstados.PROPUESTA);

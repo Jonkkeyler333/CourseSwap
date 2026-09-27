@@ -38,4 +38,27 @@ export const SolicitudesService = {
     });
     return data;
   },
+
+  async updateSolicitud(solicitudId, nuevoGrupoId) {
+    if (!solicitudId || !nuevoGrupoId) {
+      throw new Error(
+        "Solicitud ID y Nuevo Grupo ID son obligatorios para actualizar una solicitud.",
+      );
+    }
+    const data = await fetchAPI(`/solicitudes/`, {
+      method: "PUT",
+      body: JSON.stringify({"solicitudId": solicitudId, "nuevoGrupoId": nuevoGrupoId})
+    });
+    return data;
+  },
+
+  async deleteSolicitud(solicitudId) {
+    if (!solicitudId) {
+      throw new Error("Solicitud ID es obligatorio para eliminar una solicitud.");
+    }
+
+    await fetchAPI(`/solicitudes/${solicitudId}`, {
+      method: "DELETE",
+    });
+  }
 };

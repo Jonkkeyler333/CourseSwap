@@ -1,8 +1,11 @@
 import { initLoginView } from './views/loginView.js';
 import { initDashboardView } from './views/dashboardView.js';
 import { initSolicitudesView } from './views/solicitudesView.js';
+import { initTheme } from './theme.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+
     if (document.getElementById('login-form')) {
         initLoginView();
     } else if (document.getElementById('dashboard-home')) {

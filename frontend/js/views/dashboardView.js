@@ -1,6 +1,20 @@
 import { AuthService } from "../auth.js";
 import { MatchService } from "../match.js";
 
+const isConfirmUserMatch = (match, userData) => {
+  const currentStudentName = `${userData.nombre} ${userData.apellido}`;
+
+  if (match.nombreEstudianteA === currentStudentName) {
+    return match.confirmadoPorA;
+  }
+
+  if (match.nombreEstudianteB === currentStudentName) {
+    return match.confirmadoPorB;
+  }
+
+  return false;
+}
+
 export const initDashboardView = async () => {
   const matchList = document.getElementById("match-list");
   const messageAlert = document.getElementById("alert-message");
@@ -17,28 +31,26 @@ export const initDashboardView = async () => {
   const userNameElement = document.getElementById("user-name");
   const navBarUserEmailElement = document.getElementById("navbar-user-name");
   const userCodeElement = document.getElementById("user-code");
-  AuthService.me()
-    .then((userData) => {
-      console.log(userData);
-      userNameElement.textContent = userData.nombre;
-      navBarUserEmailElement.textContent = userData.email;
-      userCodeElement.textContent = "Código: " + userData.codigo;
-    })
-    .catch((error) => {
-      console.error("Error fetching user data:", error);
-    });
 
   try {
+    const userData = await AuthService.me();
+    userNameElement.textContent = userData.nombre;
+    navBarUserEmailElement.textContent = userData.email;
+    userCodeElement.textContent = "Código: " + userData.codigo;
+
     const matchesStudent = await MatchService.getStudentMatches();
     const activeMatches = matchesStudent.filter(
-      (match) => match.estado === "ACTIVO",
+      (match) =>
+        match.estado === "ACTIVO" && !isConfirmUserMatch(match, userData),
     );
 
     matchList.innerHTML = "";
     const cards = activeMatches.map((match) => createMatchCard(match));
+    console.log(cards.length);
 
     if (cards.length === 0) {
       messageAlert.classList.remove("d-none");
+      messageAlert.classList.add("alert", "alert-warning");
       messageAlert.textContent = "No hay matches disponibles en este momento.";
     } else {
       messageAlert.classList.add("d-none");
@@ -83,6 +95,7 @@ export const initDashboardView = async () => {
 const createMatchCard = (match) => {
   const article = document.createElement("article");
   article.dataset.matchId = match.matchId;
+  console.log(match);
 
   const statusClasses = {
     ACTIVO: "bg-success-subtle text-success",
@@ -124,12 +137,14 @@ const createMatchCard = (match) => {
 
             <div class="d-flex flex-wrap gap-2 mt-4" id="match-actions">
                 <button class="btn btn-success" type="button" data-action="confirm-match" data-match-id="${match.matchId}">Confirmar match</button>
-                <button class="bbtn btn-outline-secondary" type="button" data-action="cancel-match" data-match-id="${match.matchId}">Cancelar match</button>
+                <button class="btn btn-danger" type="button" data-action="cancel-match" data-match-id="${match.matchId}">Cancelar match</button>
             </div>
         </div>
     `;
     return article;
 };
+
+
 
 //Ejemplo de respuesta del endpoint de matches del estudiante
 //   {

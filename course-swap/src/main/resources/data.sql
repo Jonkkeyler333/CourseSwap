@@ -1088,3 +1088,22 @@ SELECT g.id, 'Jueves', '10:00', '12:00'
 FROM grupo g
          JOIN materia m ON m.id = g.materia_id
 WHERE m.codigo = '28091' AND g.nombre = 'C2';
+
+INSERT INTO grupo (materia_id, nombre, profesor)
+SELECT id, 'C3', 'Pedro'
+FROM materia
+WHERE codigo = '22965';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Lunes', '06:00', '08:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22965'
+  AND g.nombre = 'C3';
+
+INSERT INTO horario_grupo (grupo_id, dia, hora_inicio, hora_fin)
+SELECT g.id, 'Miércoles', '06:00', '08:00'
+FROM grupo g
+         JOIN materia m ON m.id = g.materia_id
+WHERE m.codigo = '22965'
+  AND g.nombre = 'C3';

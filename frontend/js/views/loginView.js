@@ -21,7 +21,8 @@ export const initLoginView = () => {
             showAlert(error.message || 'Error al iniciar sesion', 'danger')
             setTimeout(() => {
                 showAlert(null, null);
-            }, 5000);
+                hideAlert();
+            }, 3500);
             
         }
     })

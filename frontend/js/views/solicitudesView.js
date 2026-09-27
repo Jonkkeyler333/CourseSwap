@@ -16,7 +16,14 @@ export const initSolicitudesView = async () => {
   const codigoEstInput = document.getElementById("request-codigo");
   const formCreate = document.getElementById("new-request-form");
   const logoutButton = document.getElementById("logout-button");
-
+  const studentNameElement = document.getElementById("navbar-user-name");
+  const editRequestModalBody = document.getElementById("editRequestModalBody");
+  const editRequestActions = document.getElementById("editRequestActions");
+  const editRequestModal = document.getElementById("editRequestModal");
+  const alertMessageUpdate = document.getElementById("alert-message-update");
+  
+  const me = await AuthService.me();
+  studentNameElement.textContent = `${me.nombre} ${me.apellido}`;
   requestList.addEventListener("click", async (event) => {
     const actionButton = event.target.closest("button[data-action]");
 
@@ -40,6 +47,27 @@ export const initSolicitudesView = async () => {
           error.message ||
           "Error al confirmar el match. Por favor, inténtalo de nuevo.";
         messageElement.className = "alert alert-danger";
+      }
+    } else if (action === "delete-request") {
+      try {
+        const confirmDelete = window.confirm("¿Estás seguro de que deseas cancelar esta solicitud?, se eliminara definitivamente ‼");
+        if (confirmDelete) {
+          await SolicitudesService.deleteSolicitud(requestId);
+        }
+        else {
+          return;
+        }
+        window.location.reload();
+      } catch (error) {
+        console.error("Error deleting request:", error);
+        messageElement.textContent =
+          error.message ||
+          "Error al eliminar la solicitud. Por favor, inténtalo de nuevo.";
+        messageElement.className = "alert alert-danger";
+        setTimeout(() => {
+          messageElement.textContent = "";
+          messageElement.className = "";
+        }, 3500);
       }
     }
 
@@ -76,7 +104,7 @@ export const initSolicitudesView = async () => {
       setTimeout(() => {
         messageElement.textContent = "";
         messageElement.className = "";
-      }, 5000);
+      }, 3500);
       return;
     }
 
@@ -114,7 +142,7 @@ export const initSolicitudesView = async () => {
       setTimeout(() => {
         messageElement.textContent = "";
         window.location.reload();
-      }, 5000);
+      }, 3500);
     } catch (error) {
       console.error("Error creating solicitud:", error);
       messageElement.textContent =
@@ -124,7 +152,7 @@ export const initSolicitudesView = async () => {
       setTimeout(() => {
         messageElement.textContent = "";
         messageElement.className = "";
-      }, 5000);
+      }, 3500);
     }
   });
   //   let grupoActual = undefined;
@@ -142,7 +170,7 @@ export const initSolicitudesView = async () => {
       emptyState.classList.add("d-none");
       requestList.innerHTML = "";
       const cards = await Promise.all(
-        solicitudesOrdered.map((solicitud) => createRequestCard(solicitud)),
+        solicitudesOrdered.map((solicitud) => createRequestCard(solicitud, editRequestModalBody, editRequestActions)),
       );
       cards.forEach((card) => requestList.appendChild(card));
     }
@@ -190,6 +218,48 @@ export const initSolicitudesView = async () => {
         grupoActualElement.innerHTML = `<input readonly class="form-control" type="text" value="No se encontró el grupo actual" />`;
       }
     });
+
+    editRequestModal.addEventListener("click", async (event) => {
+      const saveChangesButton = event.target.closest("button[data-action='save-changes']");
+      
+      if (!saveChangesButton) {
+        return;
+      }
+      const requestId = saveChangesButton.dataset.requestId;
+      const editRequestSelect = editRequestModal.querySelector(
+        "#edit-request-target-group",
+      );
+      const targetGroupId = editRequestSelect?.value;
+
+      if (!targetGroupId) {
+        alert("Selecciona un grupo deseado.");
+        return;
+      }
+
+      try {
+        const result = await SolicitudesService.updateSolicitud(
+          parseInt(requestId),
+          parseInt(targetGroupId),
+        );
+        alertMessageUpdate.classList.remove("d-none");
+        alertMessageUpdate.textContent = `Solicitud actualizada exitosamente. ID de la solicitud: ${result.id}. Nuevo grupo deseado: ${result.nombreGrupoDeseado}`;
+        alertMessageUpdate.className = "alert alert-success";
+      } catch (error) {
+        alertMessageUpdate.textContent =
+          error.message ||
+          "Error al actualizar la solicitud. Por favor, inténtalo de nuevo.";
+        alertMessageUpdate.className = "alert alert-danger";
+      }
+      finally {
+        setTimeout(() => {
+          alertMessageUpdate.textContent = "";
+          alertMessageUpdate.classList.add("d-none");
+          alertMessageUpdate.className = "";
+          window.location.reload();
+        }, 3500);
+      }
+    })
+
     // matriculasStudent.forEach( (matricula) => {
     //     selectMateria.innerHTML += `<option value="${matricula.materiaId}">${matricula.materiaCodigo}: ${matricula.materiaNombre}</option>`;
     // })
@@ -202,8 +272,11 @@ export const initSolicitudesView = async () => {
   }
 };
 
-const createRequestCard = async (solicitud) => {
+const createRequestCard = async (solicitud, editRequestModalBody, editRequestActions) => {
   const article = document.createElement("article");
+  const isConfirmed = solicitud.estado === "CONFIRMADA";
+  const previousGroupLabel = isConfirmed ? "Grupo anterior" : "Grupo actual";
+  const desiredGroupLabel = isConfirmed ? "Grupo actual" : "Grupo deseado";
 
   article.className = "card border-0 shadow-sm";
   article.dataset.requestId = solicitud.id;
@@ -245,21 +318,21 @@ const createRequestCard = async (solicitud) => {
 
             <div class="row g-3">
                 <div class="col-sm-6">
-                    <p class="small text-secondary mb-1">Grupo actual</p>
+                <p class="small text-secondary mb-1">${previousGroupLabel}</p>
                     <p class="fw-semibold mb-0">
                         ${solicitud.nombreGrupoActual}
                     </p>
                 </div>
 
                 <div class="col-sm-6">
-                    <p class="small text-secondary mb-1">Grupo deseado</p>
+                <p class="small text-secondary mb-1">${desiredGroupLabel}</p>
                     <p class="fw-semibold mb-0">
                         ${solicitud.nombreGrupoDeseado}
                     </p>
                 </div>
             </div>
 
-            ${await renderRequestActions(solicitud)}
+            ${await renderRequestActions(solicitud, editRequestModalBody, editRequestActions)}
             
         </div>
     `;
@@ -267,15 +340,37 @@ const createRequestCard = async (solicitud) => {
   return article;
 };
 
-const renderRequestActions = async (solicitud) => {
+const renderRequestActions = async (solicitud, editRequestModalBody, editRequestActions) => {
   if (solicitud.estado === "PROPUESTA") {
+
+    const horariosDisponibles = await MateriaService.getMateriaHorarios(
+          solicitud.materiaCodigo,
+    );
+    const horariosDisponiblesFiltered = horariosDisponibles.filter(
+          (h) => h.idGrupo !== parseInt(solicitud.grupoActual) && h.idGrupo !== parseInt(solicitud.grupoDeseado),
+    );
+    console.log("Solicitud en estado PROPUESTA:", solicitud);
+    editRequestModalBody.innerHTML = `
+      <h4><b>Tu grupo actual:</b> ${solicitud.nombreGrupoActual}</h4>
+      <h4><b>Grupo deseado:</b> ${solicitud.nombreGrupoDeseado}</h4>
+      <p>Recuerda que para cada grupo saldrán las 2 franjas horarias. Basta con seleccionar una sola</p>
+      <select id="edit-request-target-group" class="form-select">
+          <option value="" selected disabled>Selecciona un grupo</option>
+          ${horariosDisponiblesFiltered.map((h) => `<option value="${h.idGrupo}">${h.grupo} - dia: ${h.dia} - hora: ${h.horaInicio} - hora fin: ${h.horaFin} - profesor: ${h.profesor}</option>`).join("")}
+      </select>
+    `;
+    editRequestActions.innerHTML = `
+      <button type="button" class="btn btn-primary" data-action="save-changes" data-request-id="${solicitud.id}">Guardar cambios</button>
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+    `
     return `
       <div class="d-flex gap-2 mt-4" data-request-actions>
         <button
-          class="btn btn-outline-primary btn-sm"
           type="button"
-          data-action="edit-request"
-          data-request-id="${solicitud.id}">
+          class="btn btn-outline-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#editRequestModal"
+        >
           Editar solicitud
         </button>
         <button
@@ -370,3 +465,10 @@ const renderRequestActions = async (solicitud) => {
 //     "nombreEstudianteB": null
 //   }
 // ]
+        // <button
+        //   class="btn btn-outline-primary btn-sm"
+        //   type="button"
+        //   data-action="edit-request"
+        //   data-request-id="${solicitud.id}">
+        //   Editar solicitud
+        // </button>
