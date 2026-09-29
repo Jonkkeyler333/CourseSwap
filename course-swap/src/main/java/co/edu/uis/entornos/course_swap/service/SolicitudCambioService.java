@@ -3,8 +3,8 @@ package co.edu.uis.entornos.course_swap.service;
 import co.edu.uis.entornos.course_swap.dto.SolicitudRequestDTO;
 import co.edu.uis.entornos.course_swap.dto.SolicitudResponseDTO;
 import co.edu.uis.entornos.course_swap.dto.UpdateSolicitudRequestDTO;
+import co.edu.uis.entornos.course_swap.dto.SolicitudBusquedaDTO;
 import co.edu.uis.entornos.course_swap.exception.ResourceNotFoundException;
-import co.edu.uis.entornos.course_swap.model.SolicitudEstados;
 import co.edu.uis.entornos.course_swap.model.*;
 import co.edu.uis.entornos.course_swap.repository.*;
 import org.springframework.stereotype.Service;
@@ -23,50 +23,56 @@ public class SolicitudCambioService {
     private final GrupoRespository grupoRespository;
     private final MateriaRepository materiaRepository;
     private final MatchRepository matchRepository;
+    private final SolicitudBusquedaRepository solicitudBusquedaRepository;
 
     public SolicitudCambioService(SolicitudCambioRepository solicitudCambioRepository,
-                                  MatriculaRepository matriculaRepository,
-                                  EstudianteRepository estudianteRepository,
-                                  GrupoRespository grupoRespository,
-                                  MateriaRepository materiaRepository,
-                                  MatchRepository matchRepository) {
+            MatriculaRepository matriculaRepository,
+            EstudianteRepository estudianteRepository,
+            GrupoRespository grupoRespository,
+            MateriaRepository materiaRepository,
+            MatchRepository matchRepository,
+            SolicitudBusquedaRepository solicitudBusquedaRepository) {
         this.solicitudCambioRepository = solicitudCambioRepository;
         this.matriculaRepository = matriculaRepository;
         this.estudianteRepository = estudianteRepository;
         this.grupoRespository = grupoRespository;
         this.materiaRepository = materiaRepository;
         this.matchRepository = matchRepository;
+        this.solicitudBusquedaRepository = solicitudBusquedaRepository;
     }
 
     @Transactional
     public SolicitudResponseDTO crearSolicitudCambio(SolicitudRequestDTO solicitud) {
-        boolean existsMatricula = matriculaRepository.existsByEstudianteCodigoAndMateriaId(solicitud.getCodigo(), solicitud.getMateriaId());
+        boolean existsMatricula = matriculaRepository.existsByEstudianteCodigoAndMateriaId(solicitud.getCodigo(),
+                solicitud.getMateriaId());
         if (!existsMatricula) {
             throw new IllegalArgumentException("El estudiante no está matriculado en la materia indicada");
         }
-        boolean existsInterference = matriculaRepository.existsHorarioInterference(solicitud.getCodigo(), solicitud.getMateriaId(), solicitud.getGrupoNuevoId());
+        boolean existsInterference = matriculaRepository.existsHorarioInterference(solicitud.getCodigo(),
+                solicitud.getMateriaId(), solicitud.getGrupoNuevoId());
         if (existsInterference) {
-            throw new IllegalArgumentException("El grupo deseado tiene un horario que interfiere con la matrícula actual del estudiante");
+            throw new IllegalArgumentException(
+                    "El grupo deseado tiene un horario que interfiere con la matrícula actual del estudiante");
         }
         Estudiante estudiante = estudianteRepository.findByCodigo(solicitud.getCodigo())
-                .orElseThrow(() -> new ResourceNotFoundException("No existe un estudiante con código: " + solicitud.getCodigo()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No existe un estudiante con código: " + solicitud.getCodigo()));
         Grupo grupoActual = grupoRespository.findById(solicitud.getGrupoActualId())
-                .orElseThrow(() -> new ResourceNotFoundException("No existe un grupo con id: " + solicitud.getGrupoActualId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No existe un grupo con id: " + solicitud.getGrupoActualId()));
         Grupo grupoDeseado = grupoRespository.findById(solicitud.getGrupoNuevoId())
-                .orElseThrow(() -> new ResourceNotFoundException("No existe un grupo con id: " + solicitud.getGrupoNuevoId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No existe un grupo con id: " + solicitud.getGrupoNuevoId()));
         Materia materia = grupoActual.getMateria();
 
-        List<SolicitudCambio> solicitudesActivas =
-            solicitudCambioRepository.findByEstudianteAndMateriaAndEstadoIn(
+        List<SolicitudCambio> solicitudesActivas = solicitudCambioRepository.findByEstudianteAndMateriaAndEstadoIn(
                 estudiante,
                 materia,
-                List.of(SolicitudEstados.PROPUESTA, SolicitudEstados.MATCHED)
-            );
+                List.of(SolicitudEstados.PROPUESTA, SolicitudEstados.MATCHED));
 
         if (!solicitudesActivas.isEmpty()) {
             throw new IllegalArgumentException(
-                "Ya tienes una solicitud activa para esta materia"
-            );
+                    "Ya tienes una solicitud activa para esta materia");
         }
 
         SolicitudCambio solicitudCambio = new SolicitudCambio();
@@ -97,19 +103,41 @@ public class SolicitudCambioService {
         return mapper(solicitudCambio);
     }
 
+    @Transactional(readOnly = true)
+    public List<SolicitudBusquedaDTO> buscarSolicitudesCompatibles(Long estudianteId) {
+        return solicitudBusquedaRepository
+                .findSolicitudesCompatiblesByEstudianteId(
+                        estudianteId,
+                        SolicitudEstados.PROPUESTA)
+                .stream()
+                .map(solicitud -> new SolicitudBusquedaDTO(
+                        solicitud.getId(),
+                        solicitud.getEstudiante().getNombre() + " "
+                                + solicitud.getEstudiante().getApellido(),
+                        solicitud.getMateria().getCodigo(),
+                        solicitud.getMateria().getNombre(),
+                        solicitud.getGrupoActual().getNombre(),
+                        solicitud.getGrupoDeseado().getNombre(),
+                        solicitud.getFechaSolicitud().toString()))
+                .toList();
+    }
+
     public List<SolicitudResponseDTO> getSolicitudesByMateria(String codigoMateria) {
         Materia materia = materiaRepository.findByCodigo(codigoMateria)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe una materia con código: " + codigoMateria));
         List<SolicitudCambio> solicitudes = solicitudCambioRepository.findByMateria(materia)
-                .orElseThrow(() -> new ResourceNotFoundException("No existen solicitudes para la materia con código: " + codigoMateria));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No existen solicitudes para la materia con código: " + codigoMateria));
         return solicitudes.stream().map(this::mapper).toList();
     }
 
     public List<SolicitudResponseDTO> getSolicitudesByEstudiante(Long idEstudiante) {
         Estudiante estudiante = estudianteRepository.findById(idEstudiante)
-                .orElseThrow(() -> new ResourceNotFoundException("No existe un estudiante con código: " + idEstudiante));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("No existe un estudiante con código: " + idEstudiante));
         List<SolicitudCambio> solicitudes = solicitudCambioRepository.findByEstudiante(estudiante)
-                .orElseThrow(() -> new ResourceNotFoundException("No existen solicitudes para el estudiante con código: " + idEstudiante));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No existen solicitudes para el estudiante con código: " + idEstudiante));
         return solicitudes.stream().map(this::mapper).toList();
     }
 
@@ -122,9 +150,11 @@ public class SolicitudCambioService {
 
     public SolicitudResponseDTO updateSolicitudCambio(UpdateSolicitudRequestDTO newSolicitud) {
         SolicitudCambio solicitud = solicitudCambioRepository.findById(newSolicitud.getSolicitudId())
-                .orElseThrow(() -> new ResourceNotFoundException("No existe una solicitud con id: " + newSolicitud.getSolicitudId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No existe una solicitud con id: " + newSolicitud.getSolicitudId()));
         Grupo newGrupo = grupoRespository.findById(newSolicitud.getNuevoGrupoId())
-                .orElseThrow(() -> new ResourceNotFoundException("No existe un grupo con id: " + newSolicitud.getNuevoGrupoId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No existe un grupo con id: " + newSolicitud.getNuevoGrupoId()));
         System.out.println(newGrupo.getNombre());
         solicitud.setGrupoDeseado(newGrupo);
         solicitud.setFechaActualizacion(LocalDateTime.now());
@@ -154,7 +184,6 @@ public class SolicitudCambioService {
                 solicitudCambio.getMateria().getCodigo(),
                 solicitudCambio.getMateria().getNombre(),
                 solicitudCambio.getGrupoActual().getNombre(),
-                solicitudCambio.getGrupoDeseado().getNombre()
-        );
+                solicitudCambio.getGrupoDeseado().getNombre());
     }
 }

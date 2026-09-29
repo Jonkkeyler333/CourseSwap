@@ -1,5 +1,10 @@
 package co.edu.uis.entornos.course_swap.controller;
 
+
+import co.edu.uis.entornos.course_swap.dto.SolicitudBusquedaDTO;
+import co.edu.uis.entornos.course_swap.dto.EstudianteResponseDTO;
+import co.edu.uis.entornos.course_swap.service.AuthService;
+import org.springframework.security.core.Authentication;
 import co.edu.uis.entornos.course_swap.dto.SolicitudRequestDTO;
 import co.edu.uis.entornos.course_swap.dto.SolicitudResponseDTO;
 import co.edu.uis.entornos.course_swap.dto.UpdateSolicitudRequestDTO;
@@ -24,8 +29,14 @@ import java.util.List;
 public class SolicitudCambioController {
     private final SolicitudCambioService solicitudCambioService;
 
-    public SolicitudCambioController(SolicitudCambioService solicitudCambioService) {
+    private final AuthService authService;
+
+    public SolicitudCambioController(
+            SolicitudCambioService solicitudCambioService,
+            AuthService authService
+    ) {
         this.solicitudCambioService = solicitudCambioService;
+        this.authService = authService;
     }
 
     @GetMapping("/")
@@ -73,4 +84,15 @@ public class SolicitudCambioController {
     public ResponseEntity<SolicitudResponseDTO> actualizarSolicitudCambio(@Valid @RequestBody UpdateSolicitudRequestDTO solicitud) {
         return ResponseEntity.ok(solicitudCambioService.updateSolicitudCambio(solicitud));
     }
+    @GetMapping("/buscar")
+    public ResponseEntity<List<SolicitudBusquedaDTO>> buscarSolicitudesCompatibles(
+            Authentication authentication
+    ) {
+        EstudianteResponseDTO estudiante =
+                authService.getEstudianteByEmail(authentication.getName());
+
+        return ResponseEntity.ok(
+                solicitudCambioService.buscarSolicitudesCompatibles(estudiante.getId())
+        );
+}
 }
