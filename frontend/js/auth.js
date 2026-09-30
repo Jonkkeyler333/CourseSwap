@@ -32,7 +32,7 @@ export const AuthService = {
   logout() {
     localStorage.removeItem(CONFIG.TOKEN_KEY);
     localStorage.removeItem(CONFIG.USER_KEY);
-    window.location.href = "/index.html";
+    window.location.href = "./index.html";
   },
 
   isAuthenticated() {
@@ -42,9 +42,9 @@ export const AuthService = {
   checkAuthGuard(isProtectedRoute = true) {
     const authenticated = this.isAuthenticated();
     if (isProtectedRoute && !authenticated) {
-      window.location.href = "/index.html";
+      window.location.href = "./index.html";
     } else if (!isProtectedRoute && authenticated) {
-      window.location.href = "/dashboard.html";
+      window.location.href = "./dashboard.html";
     }
   },
 };
