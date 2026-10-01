@@ -1,18 +1,21 @@
-import { initLoginView } from './views/loginView.js';
-import { initDashboardView } from './views/dashboardView.js';
-import { initSolicitudesView } from './views/solicitudesView.js';
-import { initTheme } from './theme.js';
+import { initLoginView } from "./views/loginView.js";
+import { initDashboardView } from "./views/dashboardView.js";
+import { initSolicitudesView } from "./views/solicitudesView.js";
+import { initMatriculasView } from "./views/matriculasView.js";
+import { initTheme } from "./theme.js";
 
-document.addEventListener('DOMContentLoaded', () => {
-    initTheme();
+document.addEventListener("DOMContentLoaded", () => {
+  initTheme();
 
-    if (document.getElementById('login-form')) {
-        initLoginView();
-    } else if (document.getElementById('dashboard-home')) {
-        console.log('dashboard')
-        initDashboardView();
-    } else if (document.getElementById('requests-page')) {
-        console.log('solicitudes');
-        initSolicitudesView();
-    }
+  if (document.getElementById("login-form")) {
+    initLoginView();
+  } else if (document.getElementById("dashboard-home")) {
+    console.log("dashboard");
+    initDashboardView();
+  } else if (document.getElementById("requests-page")) {
+    console.log("solicitudes");
+    initSolicitudesView();
+  } else if (document.getElementById("enrollment-page")) {
+    initMatriculasView();
+  }
 });
