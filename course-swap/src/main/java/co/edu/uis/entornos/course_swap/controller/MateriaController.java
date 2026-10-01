@@ -40,6 +40,17 @@ public class MateriaController {
         return ResponseEntity.ok(materiaService.getByCodigo(codigo));
     }
 
+    @GetMapping("/all")
+    @Operation(summary = "Obtener todas las materias")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Materias encontradas",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Materia.class)))),
+            @ApiResponse(responseCode = "404", description = "No hay materias disponibles")
+    })
+    public ResponseEntity<List<Materia>> getAllMaterias() {
+        return ResponseEntity.ok(materiaService.getAllMaterias());
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Buscar materia por ID")
     @ApiResponses(value = {
