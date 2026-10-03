@@ -54,6 +54,14 @@ public class MatchController {
         return ResponseEntity.ok(confirmedMatch);
     }
 
+    @PostMapping("/{id}/cancel")
+    @Operation(summary = "Cancelar un match activo", description = "Permite a cualquiera de los dos estudiantes cancelar el match antes de que ambos lo confirmen.")
+    public ResponseEntity<MatchCreateDTO> cancelMatch(@PathVariable Long id, Authentication authentication){
+        EstudianteResponseDTO estudiante = getStudentByEmail(authentication);
+        MatchCreateDTO cancelledMatch = matchService.cancelMatch(id, estudiante.getId());
+        return ResponseEntity.ok(cancelledMatch);
+    }
+
     @GetMapping("/me")
     @Operation(summary = "Obtener los matches del estudiante autenticado", description = "Devuelve una lista de todos los matches asociados al estudiante que ha iniciado sesión.")
     @ApiResponses(value = {

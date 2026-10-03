@@ -1,19 +1,12 @@
 import { AuthService } from "../auth.js";
 import { MatchService } from "../match.js";
 
-const isConfirmUserMatch = (match, userData) => {
+const hasCurrentStudentConfirmed = (match, userData) => {
   const currentStudentName = `${userData.nombre} ${userData.apellido}`;
-
-  if (match.nombreEstudianteA === currentStudentName) {
-    return match.confirmadoPorA;
-  }
-
-  if (match.nombreEstudianteB === currentStudentName) {
-    return match.confirmadoPorB;
-  }
-
+  if (match.nombreEstudianteA === currentStudentName) return match.confirmadoPorA;
+  if (match.nombreEstudianteB === currentStudentName) return match.confirmadoPorB;
   return false;
-}
+};
 
 export const initDashboardView = async () => {
   const matchList = document.getElementById("match-list");
@@ -40,12 +33,11 @@ export const initDashboardView = async () => {
 
     const matchesStudent = await MatchService.getStudentMatches();
     const activeMatches = matchesStudent.filter(
-      (match) =>
-        match.estado === "ACTIVO" && !isConfirmUserMatch(match, userData),
+      (match) => match.estado === "ACTIVO",
     );
 
     matchList.innerHTML = "";
-    const cards = activeMatches.map((match) => createMatchCard(match));
+    const cards = activeMatches.map((match) => createMatchCard(match, userData));
     console.log(cards.length);
 
     if (cards.length === 0) {
@@ -70,21 +62,46 @@ export const initDashboardView = async () => {
 
   matchList.addEventListener("click", async (event) => {
     const buttonConfirm = event.target.closest("button[data-action='confirm-match']");
-    if (!buttonConfirm) {
+    const buttonCancel = event.target.closest("button[data-action='cancel-match']");
+    if (!buttonConfirm && !buttonCancel) {
         return;
     }
-    const matchId = buttonConfirm.dataset.matchId;
+    const matchId = (buttonConfirm || buttonCancel).dataset.matchId;
     try {
-        await MatchService.confirmMatch(matchId);
+        if (buttonCancel) {
+          if (!window.confirm("¿Cancelar este match? Las dos solicitudes quedarán canceladas.")) return;
+          await MatchService.cancelMatch(matchId);
+        } else {
+          const result = await MatchService.confirmMatch(matchId);
+          const matchCard = buttonConfirm.closest("article");
+          if (result.estado === "CONFIRMADO") {
+            matchCard.remove();
+            if (!matchList.querySelector("article")) {
+              messageAlert.className = "alert alert-warning";
+              messageAlert.textContent = "No tienes otros matches activos.";
+            }
+          } else {
+            buttonConfirm.disabled = true;
+            buttonConfirm.textContent = "Confirmación enviada";
+            const status = document.createElement("p");
+            status.className = "small text-success mt-2 mb-0";
+            status.textContent = "Ya confirmaste. El match seguirá disponible para cancelarlo mientras esperas la confirmación de la otra persona.";
+            buttonConfirm.parentElement.insertAdjacentElement("beforebegin", status);
+          }
+        }
         messageAlert.classList.remove("d-none");
-        messageAlert.textContent = "Match confirmado exitosamente.";
+        if (buttonCancel) {
+          messageAlert.textContent = "Match cancelado; ambas solicitudes quedaron canceladas.";
+        } else if (messageAlert.textContent !== "No tienes otros matches activos.") {
+          messageAlert.textContent = "Tu confirmación se registró correctamente.";
+        }
         setTimeout(() => {
             messageAlert.classList.add("d-none");
         }, 5000);
-        window.location.reload();
+        if (buttonCancel) window.location.reload();
     } catch (error) {
         messageAlert.classList.remove("d-none");
-        messageAlert.textContent = "Error al confirmar el match: " + error.message;
+        messageAlert.textContent = `Error al ${buttonCancel ? "cancelar" : "confirmar"} el match: ` + error.message;
         setTimeout(() => {
             messageAlert.classList.add("d-none");
         }, 5000);
@@ -92,9 +109,10 @@ export const initDashboardView = async () => {
   })
 };
 
-const createMatchCard = (match) => {
+const createMatchCard = (match, userData) => {
   const article = document.createElement("article");
   article.dataset.matchId = match.matchId;
+  const currentStudentConfirmed = hasCurrentStudentConfirmed(match, userData);
   console.log(match);
 
   const statusClasses = {
@@ -136,9 +154,12 @@ const createMatchCard = (match) => {
             </div>
 
             <div class="d-flex flex-wrap gap-2 mt-4" id="match-actions">
-                <button class="btn btn-success" type="button" data-action="confirm-match" data-match-id="${match.matchId}">Confirmar match</button>
+                ${currentStudentConfirmed
+                  ? '<button class="btn btn-success" type="button" disabled>Confirmación enviada</button>'
+                  : `<button class="btn btn-success" type="button" data-action="confirm-match" data-match-id="${match.matchId}">Confirmar match</button>`}
                 <button class="btn btn-danger" type="button" data-action="cancel-match" data-match-id="${match.matchId}">Cancelar match</button>
             </div>
+            ${currentStudentConfirmed ? '<p class="small text-success mt-2 mb-0">Ya confirmaste. El match sigue activo mientras esperas la confirmación de la otra persona.</p>' : ''}
         </div>
     `;
     return article;
