@@ -9,6 +9,9 @@ export const initSolicitudesView = async () => {
   const requestList = document.getElementById("requests-list");
   const emptyState = document.getElementById("empty-requests-state");
   const requestCount = document.getElementById("requests-count");
+  const requestStatusFilter = document.getElementById("request-status-filter");
+  const emptyRequestsTitle = document.getElementById("empty-requests-title");
+  const emptyRequestsDescription = document.getElementById("empty-requests-description");
   const messageElement = document.getElementById("request-form-alert");
   const selectMateria = document.getElementById("request-materia");
   const grupoActualElement = document.getElementById("request-current-group");
@@ -46,6 +49,16 @@ export const initSolicitudesView = async () => {
         messageElement.textContent =
           error.message ||
           "Error al confirmar el match. Por favor, inténtalo de nuevo.";
+        messageElement.className = "alert alert-danger";
+      }
+    } else if (action === "cancel-match") {
+      try {
+        if (!window.confirm("¿Cancelar este match? Las dos solicitudes quedarán canceladas.")) return;
+        await MatchService.cancelMatch(matchId);
+        window.location.reload();
+      } catch (error) {
+        console.error("Error cancelling match:", error);
+        messageElement.textContent = error.message || "Error al cancelar el match.";
         messageElement.className = "alert alert-danger";
       }
     } else if (action === "delete-request") {
@@ -173,6 +186,26 @@ export const initSolicitudesView = async () => {
         solicitudesOrdered.map((solicitud) => createRequestCard(solicitud, editRequestModalBody, editRequestActions)),
       );
       cards.forEach((card) => requestList.appendChild(card));
+      const applyRequestFilter = () => {
+        const selectedStatus = requestStatusFilter?.value || "ALL";
+        let visibleCount = 0;
+        requestList.querySelectorAll("article[data-request-status]").forEach((card) => {
+          const visible = selectedStatus === "ALL" || card.dataset.requestStatus === selectedStatus;
+          card.classList.toggle("d-none", !visible);
+          if (visible) visibleCount++;
+        });
+        requestCount.textContent = `${visibleCount} Solicitudes Encontradas`;
+        emptyState.classList.toggle("d-none", visibleCount > 0);
+        if (visibleCount === 0 && solicitudes.length > 0) {
+          emptyRequestsTitle.textContent = "No hay solicitudes de este tipo";
+          emptyRequestsDescription.textContent = "Prueba con otro tipo de solicitud en el filtro.";
+        } else {
+          emptyRequestsTitle.textContent = "Aún no tienes solicitudes";
+          emptyRequestsDescription.textContent = "Crea una solicitud para comenzar a buscar un intercambio.";
+        }
+      };
+      requestStatusFilter?.addEventListener("change", applyRequestFilter);
+      applyRequestFilter();
     }
 
     const materiasSolicitudesActivas = solicitudes
@@ -285,9 +318,9 @@ const createRequestCard = async (solicitud, editRequestModalBody, editRequestAct
   // const badgeClass = solicitud.estado === "MATCHED" ? "text-bg-warning" : solicitud.estado === "CONFIRMADA" ? "text-bg-success" : "text-bg-danger";
   const statusClasses = {
     CONFIRMADA: "text-bg-success", // Verde
-    PENDIENTE: "text-bg-warning", // Amarillo
-    RECHAZADA: "text-bg-danger", // Rojo
+    PROPUESTA: "text-bg-warning",
     MATCHED: "text-bg-info", // Azul
+    CANCELADA: "text-bg-danger",
   };
 
   const badgeClass = statusClasses[solicitud.estado] || "text-bg-secondary";
@@ -407,7 +440,7 @@ const renderRequestActions = async (solicitud, editRequestModalBody, editRequest
     const counterpartConfirmed = isEstudianteA
       ? matchForSolicitud.confirmadoPorB
       : matchForSolicitud.confirmadoPorA;
-    const confirmButton = currentStudentConfirmed
+    const confirmButton = currentStudentConfirmed || matchForSolicitud.estado !== "ACTIVO"
       ? ""
       : `<div class="d-flex gap-2 mt-4" data-request-actions>
           <button
@@ -420,6 +453,10 @@ const renderRequestActions = async (solicitud, editRequestModalBody, editRequest
           </button>
         </div>`;
 
+    const cancelButton = matchForSolicitud.estado === "ACTIVO"
+      ? `<button class="btn btn-outline-danger btn-sm" type="button" data-action="cancel-match" data-match-id="${matchForSolicitud.matchId}">Cancelar match</button>`
+      : "";
+
     return `
       <div>
         <p><b>Contraparte</b>: ${counterpartName}</p>
@@ -428,6 +465,7 @@ const renderRequestActions = async (solicitud, editRequestModalBody, editRequest
         <p><b>Confirmación de la contraparte</b>: ${counterpartConfirmed ? "Sí" : "No"}</p>
       </div>
       ${confirmButton}
+      ${cancelButton ? `<div class="d-flex gap-2 mt-2" data-request-actions>${cancelButton}</div>` : ""}
     `;
   }
 

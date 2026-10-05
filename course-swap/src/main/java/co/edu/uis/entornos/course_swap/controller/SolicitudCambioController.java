@@ -1,5 +1,10 @@
 package co.edu.uis.entornos.course_swap.controller;
 
+import co.edu.uis.entornos.course_swap.dto.MatchCreateDTO;
+import co.edu.uis.entornos.course_swap.dto.SolicitudBusquedaDTO;
+import co.edu.uis.entornos.course_swap.dto.EstudianteResponseDTO;
+import co.edu.uis.entornos.course_swap.service.AuthService;
+import org.springframework.security.core.Authentication;
 import co.edu.uis.entornos.course_swap.dto.SolicitudRequestDTO;
 import co.edu.uis.entornos.course_swap.dto.SolicitudResponseDTO;
 import co.edu.uis.entornos.course_swap.dto.UpdateSolicitudRequestDTO;
@@ -22,55 +27,87 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/solicitudes")
 public class SolicitudCambioController {
-    private final SolicitudCambioService solicitudCambioService;
+        private final SolicitudCambioService solicitudCambioService;
 
-    public SolicitudCambioController(SolicitudCambioService solicitudCambioService) {
-        this.solicitudCambioService = solicitudCambioService;
-    }
+        private final AuthService authService;
 
-    @GetMapping("/")
-    @Operation(summary = "Obtener todas las solicitudes de cambio", description = "Devuelve una lista de todas las solicitudes de cambio de grupo")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Lista de solicitudes obtenida correctamente", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = SolicitudResponseDTO.class)))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida")
-    })
-    public ResponseEntity<List<SolicitudResponseDTO>> getAllSolicitudes() {
-        return ResponseEntity.ok(solicitudCambioService.getAllSolicitudes());
-    }
+        public SolicitudCambioController(
+                        SolicitudCambioService solicitudCambioService,
+                        AuthService authService) {
+                this.solicitudCambioService = solicitudCambioService;
+                this.authService = authService;
+        }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Obtener una solicitud de cambio por ID", description = "Devuelve una sola solicitud de cambio de grupo por su ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Solicitud obtenida correctamente", content = @Content(schema = @Schema(implementation = SolicitudResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Solicitud no encontrada")
-    })
-    public ResponseEntity<SolicitudResponseDTO> getSolicitudById(@PathVariable Long id) {
-        return ResponseEntity.ok(solicitudCambioService.getSolicitudById(id).orElse(null));
-    }
+        @GetMapping("/")
+        @Operation(summary = "Obtener todas las solicitudes de cambio", description = "Devuelve una lista de todas las solicitudes de cambio de grupo")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Lista de solicitudes obtenida correctamente", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = SolicitudResponseDTO.class)))),
+                        @ApiResponse(responseCode = "400", description = "Solicitud inválida")
+        })
+        public ResponseEntity<List<SolicitudResponseDTO>> getAllSolicitudes() {
+                return ResponseEntity.ok(solicitudCambioService.getAllSolicitudes());
+        }
 
-    @PostMapping("/")
-    @Operation(summary = "Crear solicitud de cambio", description = "Crea una nueva solicitud de cambio de grupo")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Solicitud creada correctamente", content = @Content(schema = @Schema(implementation = SolicitudResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida")
-    })
-    public ResponseEntity<SolicitudResponseDTO> crearSolicitudCambio(@Valid @RequestBody SolicitudRequestDTO solicitud) {
-        return ResponseEntity.ok(solicitudCambioService.crearSolicitudCambio(solicitud));
-    }
+        @GetMapping("/{id}")
+        @Operation(summary = "Obtener una solicitud de cambio por ID", description = "Devuelve una sola solicitud de cambio de grupo por su ID")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Solicitud obtenida correctamente", content = @Content(schema = @Schema(implementation = SolicitudResponseDTO.class))),
+                        @ApiResponse(responseCode = "404", description = "Solicitud no encontrada")
+        })
+        public ResponseEntity<SolicitudResponseDTO> getSolicitudById(@PathVariable Long id) {
+                return ResponseEntity.ok(solicitudCambioService.getSolicitudById(id).orElse(null));
+        }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarSolicitudCambio(@PathVariable Long id){
-        solicitudCambioService.deleteSolicitudCambio(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
+        @PostMapping("/")
+        @Operation(summary = "Crear solicitud de cambio", description = "Crea una nueva solicitud de cambio de grupo")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Solicitud creada correctamente", content = @Content(schema = @Schema(implementation = SolicitudResponseDTO.class))),
+                        @ApiResponse(responseCode = "400", description = "Solicitud inválida")
+        })
+        public ResponseEntity<SolicitudResponseDTO> crearSolicitudCambio(
+                        @Valid @RequestBody SolicitudRequestDTO solicitud) {
+                return ResponseEntity.ok(solicitudCambioService.crearSolicitudCambio(solicitud));
+        }
 
-    @PutMapping("/")
-    @Operation(summary = "Actualizar una solicitud de cambio", description = "Actualiza una solicitud de cambio de grupo existente")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Solicitud actualizada correctamente", content = @Content(schema = @Schema(implementation = SolicitudResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida")
-    })
-    public ResponseEntity<SolicitudResponseDTO> actualizarSolicitudCambio(@Valid @RequestBody UpdateSolicitudRequestDTO solicitud) {
-        return ResponseEntity.ok(solicitudCambioService.updateSolicitudCambio(solicitud));
-    }
+        @DeleteMapping("/{id}")
+        public ResponseEntity<Void> eliminarSolicitudCambio(@PathVariable Long id) {
+                solicitudCambioService.deleteSolicitudCambio(id);
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        @PutMapping("/")
+        @Operation(summary = "Actualizar una solicitud de cambio", description = "Actualiza una solicitud de cambio de grupo existente")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Solicitud actualizada correctamente", content = @Content(schema = @Schema(implementation = SolicitudResponseDTO.class))),
+                        @ApiResponse(responseCode = "400", description = "Solicitud inválida")
+        })
+        public ResponseEntity<SolicitudResponseDTO> actualizarSolicitudCambio(
+                        @Valid @RequestBody UpdateSolicitudRequestDTO solicitud) {
+                return ResponseEntity.ok(solicitudCambioService.updateSolicitudCambio(solicitud));
+        }
+
+        @GetMapping("/buscar")
+        public ResponseEntity<List<SolicitudBusquedaDTO>> buscarSolicitudesCompatibles(
+                        Authentication authentication) {
+                EstudianteResponseDTO estudiante = authService.getEstudianteByEmail(authentication.getName());
+
+                return ResponseEntity.ok(
+                                solicitudCambioService.buscarSolicitudesCompatibles(estudiante.getId()));
+        }
+
+        @PostMapping("/{id}/match-manual")
+        public ResponseEntity<MatchCreateDTO> aceptarSolicitudManual(
+                @PathVariable Long id,
+                Authentication authentication
+        ) {
+        EstudianteResponseDTO estudiante =
+                authService.getEstudianteByEmail(authentication.getName());
+
+        MatchCreateDTO match = solicitudCambioService.aceptarSolicitudManual(
+                id,
+                estudiante.getId()
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(match);
+        }
 }

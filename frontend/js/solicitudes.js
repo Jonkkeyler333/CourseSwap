@@ -8,7 +8,21 @@ export const SolicitudesService = {
     });
     return data;
   },
+  async getSolicitudesCompatibles() {
+    return await fetchAPI("/solicitudes/buscar", {
+      method: "GET",
+    });
+  },
 
+  async aceptarMatchManual(solicitudId) {
+    if (!solicitudId) {
+      throw new Error("El ID de la solicitud es obligatorio.");
+    }
+
+    return await fetchAPI(`/solicitudes/${solicitudId}/match-manual`, {
+      method: "POST",
+    });
+  },
   async getStudentSolicitudes() {
     const userData = JSON.parse(localStorage.getItem(CONFIG.USER_KEY));
     if (!userData || !userData.codigo) {
@@ -47,7 +61,7 @@ export const SolicitudesService = {
     }
     const data = await fetchAPI(`/solicitudes/`, {
       method: "PUT",
-      body: JSON.stringify({"solicitudId": solicitudId, "nuevoGrupoId": nuevoGrupoId})
+      body: JSON.stringify({ "solicitudId": solicitudId, "nuevoGrupoId": nuevoGrupoId })
     });
     return data;
   },

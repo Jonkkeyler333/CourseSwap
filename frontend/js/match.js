@@ -25,5 +25,14 @@ export const MatchService = {
             method: "POST"
         })
         return data;
+    },
+
+    async cancelMatch(matchId) {
+        if (!matchId || isNaN(Number(matchId))) {
+            throw new Error("No se pudo cancelar el match. Inténtalo de nuevo.");
+        }
+        return await fetchAPI(`/match/${matchId}/cancel`, {
+            method: "POST"
+        });
     }
 }

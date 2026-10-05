@@ -11,6 +11,7 @@ import co.edu.uis.entornos.course_swap.repository.SolicitudCambioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,6 +71,40 @@ public class MatchService {
                 match.isConfirmadoPorB()
         );
 
+    }
+
+    @Transactional
+    public MatchCreateDTO cancelMatch(Long matchId, Long estudianteId) {
+        MatchPropuesto match = matchRepository.findWithLockById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró un match con id: " + matchId));
+
+        if (match.getEstado() != MatchEstados.ACTIVO) {
+            throw new IllegalStateException("Solo se pueden cancelar matches activos");
+        }
+
+        SolicitudCambio solicitudA = match.getSolicitudCambioA();
+        SolicitudCambio solicitudB = match.getSolicitudCambioB();
+        boolean isParticipant = solicitudA.getEstudiante().getId().equals(estudianteId)
+                || solicitudB.getEstudiante().getId().equals(estudianteId);
+        if (!isParticipant) {
+            throw new IllegalArgumentException("El estudiante no está asociado a este match");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        match.setEstado(MatchEstados.CANCELADO);
+        match.setFechaActualizacion(now.toLocalDate());
+        solicitudA.setEstado(SolicitudEstados.CANCELADA);
+        solicitudA.setFechaActualizacion(now);
+        solicitudB.setEstado(SolicitudEstados.CANCELADA);
+        solicitudB.setFechaActualizacion(now);
+        matchRepository.save(match);
+        solicitudCambioRepository.save(solicitudA);
+        solicitudCambioRepository.save(solicitudB);
+
+        return new MatchCreateDTO(
+                match.getId(), solicitudA.getId(), solicitudB.getId(), match.getEstado(),
+                solicitudA.getMateria().getCodigo(), match.isConfirmadoPorA(), match.isConfirmadoPorB()
+        );
     }
 
     private void exchangeGrupos(MatchPropuesto match, SolicitudCambio solicitudCambioA, SolicitudCambio solicitudCambioB) {
