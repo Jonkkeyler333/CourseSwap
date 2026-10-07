@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -35,5 +36,17 @@ public class GrupoController {
     })
     public ResponseEntity<List<Grupo>> getAllGrupos() {
         return ResponseEntity.ok(grupoService.getAllGrupos());
+    }
+
+    @GetMapping
+    @Operation(summary = "Obtener grupos por materia")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Grupos encontrados",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Grupo.class)))),
+            @ApiResponse(responseCode = "404", description = "No hay grupos para la materia indicada")
+    })
+    public ResponseEntity<List<Grupo>> getGruposByMateriaId(
+            @RequestParam(name = "materia_id") Long materiaId) {
+        return ResponseEntity.ok(grupoService.getGruposByMateriaId(materiaId));
     }
 }

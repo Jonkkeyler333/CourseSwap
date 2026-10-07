@@ -26,4 +26,14 @@ public class GrupoService {
         }
         return grupos;
     }
+
+    public List<Grupo> getGruposByMateriaId(Long materiaId) {
+        var grupos = grupoRespository.findByMateriaId(materiaId).stream()
+                .sorted((grupoA, grupoB) -> grupoA.getNombre().compareToIgnoreCase(grupoB.getNombre()))
+                .toList();
+        if (grupos.isEmpty()) {
+            throw new ResourceNotFoundException("No se encontraron grupos para la materia con id: " + materiaId);
+        }
+        return grupos;
+    }
 }
