@@ -2,6 +2,7 @@ package co.edu.uis.entornos.course_swap.service;
 
 import co.edu.uis.entornos.course_swap.dto.MatriculaRequestDTO;
 import co.edu.uis.entornos.course_swap.dto.MatriculaResponseDTO;
+import co.edu.uis.entornos.course_swap.exception.DuplicateMatriculaException;
 import co.edu.uis.entornos.course_swap.exception.ResourceNotFoundException;
 import co.edu.uis.entornos.course_swap.model.Matricula;
 import co.edu.uis.entornos.course_swap.repository.EstudianteRepository;
@@ -32,6 +33,7 @@ public class MatriculaService {
     public MatriculaResponseDTO crearMatricula(MatriculaRequestDTO matriculaRequestDTO) {
         var estudiante = estudianteRepository.findById(matriculaRequestDTO.getEstudianteId())
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un estudiante con id: " + matriculaRequestDTO.getEstudianteId()));
+        isMatriculaExists(matriculaRequestDTO.getEstudianteId(), matriculaRequestDTO.getMateriaId());
         var materia = materiaRepository.findById(matriculaRequestDTO.getMateriaId())
                 .orElseThrow(() -> new ResourceNotFoundException("No existe una materia con id: " + matriculaRequestDTO.getMateriaId()));
         var grupo = grupoRespository.findById(matriculaRequestDTO.getGrupoId())
@@ -73,7 +75,7 @@ public class MatriculaService {
         }
         var matriculas = matriculaRepository.findByEstudianteId(estudianteId)
                 .orElseThrow(() -> new ResourceNotFoundException("No existen matrículas para el estudiante con id: " + estudianteId));
-        return matriculas.stream().map(matricula -> mapper(matricula)).toList();
+        return matriculas.stream().map(this::mapper).toList();
     }
 
     private MatriculaResponseDTO mapper(Matricula matricula) {
@@ -93,8 +95,8 @@ public class MatriculaService {
     }
 
     public void isMatriculaExists(Long estudianteId, Long materiaId) throws IllegalArgumentException {
-        if (matriculaRepository.existsByIdAndMateriaId(estudianteId, materiaId)) {
-            throw new IllegalArgumentException("El estudiante ya está matriculado en esta materia.");
+        if (matriculaRepository.existsByEstudianteIdAndMateriaId(estudianteId, materiaId)) {
+            throw new DuplicateMatriculaException("El estudiante ya está matriculado en esta materia.");
         }
     }
 

@@ -14,7 +14,7 @@ public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
     Optional<Matricula> findByEstudianteAndMateria(Estudiante estudiante, Materia materia);
     Optional<List<Matricula>> findByEstudianteId(Long estudianteId);
 
-    boolean existsByIdAndMateriaId(Long matriculaId, Long materiaId);
+    boolean existsByEstudianteIdAndMateriaId(Long estudianteId, Long materiaId);
 
     @Query("SELECT CASE WHEN (COUNT(m) > 0) THEN true ELSE false END " +
             "FROM Matricula m " +

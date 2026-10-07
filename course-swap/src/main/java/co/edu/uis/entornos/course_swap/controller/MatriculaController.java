@@ -29,10 +29,10 @@ public class MatriculaController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Matrícula creada exitosamente", content = @Content(schema = @Schema(implementation = MatriculaResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
+            @ApiResponse(responseCode = "409", description = "El estudiante ya está matriculado en la materia"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     public ResponseEntity<MatriculaResponseDTO> createMatricula(@Valid @RequestBody MatriculaRequestDTO matricula) {
-        matriculaService.isMatriculaExists(matricula.getEstudianteId(), matricula.getMateriaId());
         MatriculaResponseDTO createdMatricula = matriculaService.crearMatricula(matricula);
         return ResponseEntity.status(201).body(createdMatricula);
     }

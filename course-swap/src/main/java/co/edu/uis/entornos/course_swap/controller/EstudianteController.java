@@ -2,10 +2,11 @@ package co.edu.uis.entornos.course_swap.controller;
 
 import co.edu.uis.entornos.course_swap.dto.EstudianteResponseDTO;
 import co.edu.uis.entornos.course_swap.dto.MatriculaResponseDTO;
+import co.edu.uis.entornos.course_swap.dto.MateriaResponseDTO;
 import co.edu.uis.entornos.course_swap.dto.SolicitudResponseDTO;
+import co.edu.uis.entornos.course_swap.service.MateriaService;
 import co.edu.uis.entornos.course_swap.service.MatriculaService;
 import co.edu.uis.entornos.course_swap.service.AuthService;
-import co.edu.uis.entornos.course_swap.service.MatriculaService;
 import co.edu.uis.entornos.course_swap.service.SolicitudCambioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,7 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController   ;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -30,11 +31,13 @@ public class EstudianteController {
 
     private final AuthService authService;
     private final MatriculaService matriculaService;
+    private final MateriaService materiaService;
     private final SolicitudCambioService solicitudCambioService;
 
-    public EstudianteController(AuthService authService, MatriculaService matriculaService, SolicitudCambioService solicitudCambioService) {
+    public EstudianteController(AuthService authService, MatriculaService matriculaService, MateriaService materiaService, SolicitudCambioService solicitudCambioService) {
         this.authService = authService;
         this.matriculaService = matriculaService;
+        this.materiaService = materiaService;
         this.solicitudCambioService = solicitudCambioService;
     }
 
@@ -61,6 +64,18 @@ public class EstudianteController {
     public ResponseEntity<List<MatriculaResponseDTO>> getMatriculas(@PathVariable Long id) {
         List<MatriculaResponseDTO> matriculas = matriculaService.getMatriculasByEstudianteId(id);
         return ResponseEntity.ok(matriculas);
+    }
+
+    @GetMapping("/{id}/materias-disponibles")
+    @Operation(summary = "Obtener materias no matriculadas por un estudiante")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Materias disponibles",
+                    content = @Content(array = @io.swagger.v3.oas.annotations.media.ArraySchema(
+                            schema = @Schema(implementation = MateriaResponseDTO.class)))),
+            @ApiResponse(responseCode = "404", description = "Estudiante no encontrado")
+    })
+    public ResponseEntity<List<MateriaResponseDTO>> getMateriasDisponibles(@PathVariable("id") Long estudianteId) {
+        return ResponseEntity.ok(materiaService.getMateriasDisponiblesByEstudianteId(estudianteId));
     }
 
     @GetMapping("/{id}/solicitudes")

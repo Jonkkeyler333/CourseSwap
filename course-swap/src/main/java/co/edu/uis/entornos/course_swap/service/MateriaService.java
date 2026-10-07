@@ -1,8 +1,10 @@
 package co.edu.uis.entornos.course_swap.service;
 
 import co.edu.uis.entornos.course_swap.dto.HorarioResponseDTO;
+import co.edu.uis.entornos.course_swap.dto.MateriaResponseDTO;
 import co.edu.uis.entornos.course_swap.exception.ResourceNotFoundException;
 import co.edu.uis.entornos.course_swap.model.Materia;
+import co.edu.uis.entornos.course_swap.repository.EstudianteRepository;
 import co.edu.uis.entornos.course_swap.repository.MateriaRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -12,9 +14,11 @@ import java.util.List;
 @Service
 public class MateriaService {
     private final MateriaRepository materiaRepository;
+    private final EstudianteRepository estudianteRepository;
 
-    public MateriaService(MateriaRepository materiaRepository) {
+    public MateriaService(MateriaRepository materiaRepository, EstudianteRepository estudianteRepository) {
         this.materiaRepository = materiaRepository;
+        this.estudianteRepository = estudianteRepository;
     }
 
     public Materia getByCodigo(String codigo) {
@@ -38,6 +42,20 @@ public class MateriaService {
             throw new ResourceNotFoundException("No se encontraron materias en la base de datos");
         }
         return materias;
+    }
+
+    public List<MateriaResponseDTO> getMateriasDisponiblesByEstudianteId(Long estudianteId) {
+        if (!estudianteRepository.existsById(estudianteId)) {
+            throw new ResourceNotFoundException("No existe un estudiante con id: " + estudianteId);
+        }
+        return materiaRepository.findMateriasNotMatriculadasByEstudianteId(estudianteId)
+                .stream()
+                .map(materia -> MateriaResponseDTO.builder()
+                        .id(materia.getId())
+                        .codigo(materia.getCodigo())
+                        .nombre(materia.getNombre())
+                        .build())
+                .toList();
     }
 
     public List<HorarioResponseDTO> getMateriaHorarioByCodigo(String codigo) {
