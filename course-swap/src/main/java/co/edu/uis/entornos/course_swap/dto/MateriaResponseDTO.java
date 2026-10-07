@@ -9,11 +9,7 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class MateriaResponseDTO {
-<<<<<<< HEAD
-    @Schema(description = "Id de la materia", example = "10")
-=======
     @Schema(description = "Identificador de la materia", example = "10")
->>>>>>> 7621925178baf3fce8ca0372ef6c600f576b1ed5
     private Long id;
     @Schema(description = "Código de la materia", example = "22948")
     private String codigo;
