@@ -1,5 +1,6 @@
 package co.edu.uis.entornos.course_swap.controller;
 
+import co.edu.uis.entornos.course_swap.dto.HorarioResponseDTO;
 import co.edu.uis.entornos.course_swap.model.Grupo;
 import co.edu.uis.entornos.course_swap.service.GrupoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,6 +38,18 @@ public class GrupoController {
     })
     public ResponseEntity<List<Grupo>> getAllGrupos() {
         return ResponseEntity.ok(grupoService.getAllGrupos());
+    }
+
+    @GetMapping("/{grupoId}/horarios")
+    @Operation(summary = "Obtener horarios de un grupo")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Horarios encontrados",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = HorarioResponseDTO.class)))),
+            @ApiResponse(responseCode = "404", description = "Grupo inexistente o sin horarios")
+    })
+    public ResponseEntity<List<HorarioResponseDTO>> getHorariosByGrupoId(
+            @PathVariable Long grupoId) {
+        return ResponseEntity.ok(grupoService.getHorariosByGrupoId(grupoId));
     }
 
     @GetMapping
