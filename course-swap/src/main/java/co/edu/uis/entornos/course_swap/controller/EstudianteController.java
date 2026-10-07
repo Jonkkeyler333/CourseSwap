@@ -2,6 +2,7 @@ package co.edu.uis.entornos.course_swap.controller;
 
 import co.edu.uis.entornos.course_swap.dto.EstudianteResponseDTO;
 import co.edu.uis.entornos.course_swap.dto.MatriculaResponseDTO;
+import co.edu.uis.entornos.course_swap.dto.MatriculaDetalleResponseDTO;
 import co.edu.uis.entornos.course_swap.dto.MateriaResponseDTO;
 import co.edu.uis.entornos.course_swap.dto.SolicitudResponseDTO;
 import co.edu.uis.entornos.course_swap.service.MateriaService;
@@ -64,6 +65,18 @@ public class EstudianteController {
     public ResponseEntity<List<MatriculaResponseDTO>> getMatriculas(@PathVariable Long id) {
         List<MatriculaResponseDTO> matriculas = matriculaService.getMatriculasByEstudianteId(id);
         return ResponseEntity.ok(matriculas);
+    }
+
+    @GetMapping("/{id}/matriculas/detalle")
+    @Operation(summary = "Obtener matrículas con horarios")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Matrículas con sus horarios",
+                    content = @Content(array = @io.swagger.v3.oas.annotations.media.ArraySchema(
+                            schema = @Schema(implementation = MatriculaDetalleResponseDTO.class)))),
+            @ApiResponse(responseCode = "404", description = "Estudiante sin matrículas o no encontrado")
+    })
+    public ResponseEntity<List<MatriculaDetalleResponseDTO>> getMatriculasDetalle(@PathVariable Long id) {
+        return ResponseEntity.ok(matriculaService.getMatriculasDetalleByEstudianteId(id));
     }
 
     @GetMapping("/{id}/materias-disponibles")
