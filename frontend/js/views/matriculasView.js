@@ -272,8 +272,7 @@ const renderScheduleOnCalendar = (calendarGrid, schedule, subject, group) => {
       }
 
       const courseBlock = document.createElement("div");
-      courseBlock.className =
-        "bg-primary-subtle border border-primary rounded p-1 small";
+      courseBlock.className = "calendar-course";
       courseBlock.textContent = `${subject.name || subject.code} - ${group.name}`;
       cell.appendChild(courseBlock);
     }
