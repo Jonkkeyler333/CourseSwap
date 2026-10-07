@@ -65,7 +65,13 @@
     <main class="container py-4 py-lg-5" id="enrollment-home">
         <section aria-labelledby="enrollment-title" class="mb-5">
             <p class="text-primary fw-semibold mb-2">Gestión académica</p>
-            <h1 class="display-6 fw-bold mb-4" id="enrollment-title">Matrículas</h1>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                <h1 class="display-6 fw-bold mb-0" id="enrollment-title">Matrículas</h1>
+                <button class="btn btn-primary" type="button" data-bs-toggle="modal"
+                    data-bs-target="#create-enrollment-modal" id="open-enrollment-button">
+                    Añadir matrícula
+                </button>
+            </div>
 
             <!-- CALENDARIO SEMANAL -->
             <div class="mb-5">
