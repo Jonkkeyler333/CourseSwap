@@ -1,5 +1,5 @@
 export const CONFIG = {
-    API_BASE_URL : 'http://localhost:8080/api',
+    API_BASE_URL : 'https://courseswap.onrender.com/api',
     TOKEN_KEY : 'courseswap-token',
     USER_KEY : 'courseswap-user',
 }
