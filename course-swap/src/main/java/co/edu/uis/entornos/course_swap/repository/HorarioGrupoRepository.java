@@ -21,6 +21,8 @@ public interface HorarioGrupoRepository extends JpaRepository<HorarioGrupo, Long
             "ORDER BY hg.dia, hg.horaInicio")
     List<HorarioResponseDTO> findHorariosByGrupoId(@Param("grupoId") Long grupoId);
 
+    List<HorarioGrupo> findByGrupoIdOrderByDiaAscHoraInicioAsc(Long grupoId);
+
     @Query("SELECT new co.edu.uis.entornos.course_swap.dto.HorarioGrupoResponseDTO(" +
             "hg.grupo.id, hg.dia, hg.horaInicio, hg.horaFin) " +
             "FROM HorarioGrupo hg " +

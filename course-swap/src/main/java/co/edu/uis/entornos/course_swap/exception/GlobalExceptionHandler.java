@@ -3,6 +3,7 @@ package co.edu.uis.entornos.course_swap.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -46,7 +47,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicateMatriculaException.class)
     public ResponseEntity<Map<String, Object>> handleDuplicateMatricula(DuplicateMatriculaException ex) {
-        return buildErrorResponse(HttpStatus.CONFLICT, "Conflict", ex.getMessage());
+        return buildErrorResponse(HttpStatus.CONFLICT, "DUPLICATE_ENROLLMENT", ex.getMessage());
+    }
+
+    @ExceptionHandler(ScheduleConflictException.class)
+    public ResponseEntity<Map<String, Object>> handleScheduleConflict(ScheduleConflictException ex) {
+        return buildErrorResponse(HttpStatus.CONFLICT, "SCHEDULE_CONFLICT", ex.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
+        return buildErrorResponse(HttpStatus.FORBIDDEN, "FORBIDDEN", ex.getMessage());
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -64,6 +75,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
         response.put("status", status.value());
+        response.put("code", error);
         response.put("error", error);
         response.put("message", message);
         return ResponseEntity.status(status).body(response);

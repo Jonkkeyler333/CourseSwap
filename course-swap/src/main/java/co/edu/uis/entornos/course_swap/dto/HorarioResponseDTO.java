@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Data
 @AllArgsConstructor
@@ -20,8 +21,10 @@ public class HorarioResponseDTO {
     @Schema(description = "Día de la semana", example = "Lunes")
     private String dia;
     @Schema(description = "Hora de inicio del horario", example = "08:00")
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime horaInicio;
     @Schema(description = "Hora de finalización del horario", example = "10:00")
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime horaFin;
     @Schema(description = "ID del grupo")
     private Long idGrupo;

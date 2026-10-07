@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,7 +63,9 @@ public class EstudianteController {
                     content = @Content(schema = @Schema(implementation = MatriculaResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Estudiante no encontrado")
     })
-    public ResponseEntity<List<MatriculaResponseDTO>> getMatriculas(@PathVariable Long id) {
+    public ResponseEntity<List<MatriculaResponseDTO>> getMatriculas(@PathVariable Long id,
+                                                                      @AuthenticationPrincipal UserDetails userDetails) {
+        verifyAuthenticatedStudent(id, userDetails);
         List<MatriculaResponseDTO> matriculas = matriculaService.getMatriculasByEstudianteId(id);
         return ResponseEntity.ok(matriculas);
     }
@@ -75,7 +78,9 @@ public class EstudianteController {
                             schema = @Schema(implementation = MatriculaDetalleResponseDTO.class)))),
             @ApiResponse(responseCode = "404", description = "Estudiante sin matrículas o no encontrado")
     })
-    public ResponseEntity<List<MatriculaDetalleResponseDTO>> getMatriculasDetalle(@PathVariable Long id) {
+    public ResponseEntity<List<MatriculaDetalleResponseDTO>> getMatriculasDetalle(@PathVariable Long id,
+                                                                                    @AuthenticationPrincipal UserDetails userDetails) {
+        verifyAuthenticatedStudent(id, userDetails);
         return ResponseEntity.ok(matriculaService.getMatriculasDetalleByEstudianteId(id));
     }
 
@@ -87,7 +92,9 @@ public class EstudianteController {
                             schema = @Schema(implementation = MateriaResponseDTO.class)))),
             @ApiResponse(responseCode = "404", description = "Estudiante no encontrado")
     })
-    public ResponseEntity<List<MateriaResponseDTO>> getMateriasDisponibles(@PathVariable("id") Long estudianteId) {
+    public ResponseEntity<List<MateriaResponseDTO>> getMateriasDisponibles(@PathVariable("id") Long estudianteId,
+                                                                             @AuthenticationPrincipal UserDetails userDetails) {
+        verifyAuthenticatedStudent(estudianteId, userDetails);
         return ResponseEntity.ok(materiaService.getMateriasDisponiblesByEstudianteId(estudianteId));
     }
 
@@ -101,6 +108,13 @@ public class EstudianteController {
     public ResponseEntity<List<SolicitudResponseDTO>> getSolicitudes(@PathVariable Long id) {
         List<SolicitudResponseDTO> solicitudes = solicitudCambioService.getSolicitudesByEstudiante(id);
         return ResponseEntity.ok(solicitudes);
+    }
+
+    private void verifyAuthenticatedStudent(Long studentId, UserDetails userDetails) {
+        EstudianteResponseDTO authenticatedStudent = authService.getEstudianteByEmail(userDetails.getUsername());
+        if (!authenticatedStudent.getId().equals(studentId)) {
+            throw new AccessDeniedException("No tiene permiso para consultar la información de otro estudiante");
+        }
     }
 
 }
