@@ -5,6 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CourseSwap - Matrículas</title>
+    <script>
+        (() => {
+            const savedTheme = localStorage.getItem("courseswap-theme");
+            const theme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : "dark";
+            document.documentElement.setAttribute("data-bs-theme", theme);
+        })();
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
@@ -12,7 +19,27 @@
             --calendar-muted: #718096;
             --calendar-line: #dce5ef;
             --calendar-soft: #f6f9fc;
+            --calendar-cell: #ffffff;
+            --calendar-cell-hover: #f3f7fc;
+            --calendar-time: #edf3fb;
+            --calendar-divider: #c8d5e5;
+            --calendar-course-text: #174ea6;
+            --calendar-course-bg: #e7f0ff;
             --calendar-accent: #2563eb;
+        }
+
+        [data-bs-theme="dark"] {
+            --calendar-ink: #e6edf7;
+            --calendar-muted: #9aa9bd;
+            --calendar-line: #334155;
+            --calendar-soft: #1e293b;
+            --calendar-cell: #111827;
+            --calendar-cell-hover: #1e293b;
+            --calendar-time: #243247;
+            --calendar-divider: #475569;
+            --calendar-course-text: #bfdbfe;
+            --calendar-course-bg: #1e3a5f;
+            --calendar-accent: #60a5fa;
         }
 
         .calendar-grid {
@@ -40,8 +67,8 @@
 
         .calendar-header:first-child {
             color: var(--calendar-muted);
-            background: #edf3fb !important;
-            border-right: 2px solid #c8d5e5 !important;
+            background: var(--calendar-time) !important;
+            border-right: 2px solid var(--calendar-divider) !important;
         }
 
         .calendar-grid>.time-slot {
@@ -49,16 +76,16 @@
             padding: 0.25rem !important;
             border-right: 1px solid var(--calendar-line);
             border-bottom: 1px solid var(--calendar-line);
-            background: #ffffff;
+            background: var(--calendar-cell);
             transition: background-color 150ms ease;
         }
 
         .calendar-grid>.time-slot:hover {
-            background: #f3f7fc;
+            background: var(--calendar-cell-hover);
         }
 
         .calendar-grid>.time-slot:nth-child(8n + 1) {
-            border-right: 2px solid #c8d5e5;
+            border-right: 2px solid var(--calendar-divider);
             color: var(--calendar-muted);
             background: var(--calendar-soft);
             font-variant-numeric: tabular-nums;
@@ -72,8 +99,8 @@
             border-left: 4px solid var(--calendar-accent);
             border-radius: 0.4rem;
             padding: 0.35rem 0.5rem;
-            color: #174ea6;
-            background: #e7f0ff;
+            color: var(--calendar-course-text);
+            background: var(--calendar-course-bg);
             font-size: 0.75rem;
             font-weight: 600;
             line-height: 1.25;
@@ -81,8 +108,8 @@
     </style>
 </head>
 
-<body class="bg-light" id="enrollment-page">
-    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+<body class="bg-body" id="enrollment-page">
+    <nav class="navbar navbar-expand-lg bg-body border-bottom shadow-sm">
         <div class="container py-2">
             <a class="navbar-brand fw-bold text-primary" href="./dashboard.html">CourseSwap</a>
 
@@ -105,6 +132,7 @@
                     </li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-outline-secondary btn-sm" type="button" data-theme-toggle>Modo claro</button>
                     <span class="small text-secondary d-none d-md-inline" id="navbar-user-name">Estudiante</span>
                     <button class="btn btn-outline-danger btn-sm" type="button" id="logout-button">Cerrar
                         sesión</button>
@@ -127,19 +155,19 @@
             <!-- CALENDARIO SEMANAL -->
             <div class="mb-5">
                 <h2 class="h5 fw-bold mb-3">Tu horario de clases</h2>
-                <div class="calendar-shell bg-white overflow-auto mb-4">
+                <div class="calendar-shell bg-body overflow-auto mb-4">
                     <div class="calendar-grid" id="calendar-grid">
                         <!-- Encabezado con días de la semana -->
                         <div
-                            class="calendar-header bg-light border-end border-2 border-secondary fw-semibold p-2 text-center">
+                            class="calendar-header border-end border-2 fw-semibold p-2 text-center">
                         </div>
-                        <div class="calendar-header bg-light border-end fw-semibold p-2 text-center">Lunes</div>
-                        <div class="calendar-header bg-light border-end fw-semibold p-2 text-center">Martes</div>
-                        <div class="calendar-header bg-light border-end fw-semibold p-2 text-center">Miércoles</div>
-                        <div class="calendar-header bg-light border-end fw-semibold p-2 text-center">Jueves</div>
-                        <div class="calendar-header bg-light border-end fw-semibold p-2 text-center">Viernes</div>
-                        <div class="calendar-header bg-light border-end fw-semibold p-2 text-center">Sábado</div>
-                        <div class="calendar-header bg-light fw-semibold p-2 text-center">Domingo</div>
+                        <div class="calendar-header border-end fw-semibold p-2 text-center">Lunes</div>
+                        <div class="calendar-header border-end fw-semibold p-2 text-center">Martes</div>
+                        <div class="calendar-header border-end fw-semibold p-2 text-center">Miércoles</div>
+                        <div class="calendar-header border-end fw-semibold p-2 text-center">Jueves</div>
+                        <div class="calendar-header border-end fw-semibold p-2 text-center">Viernes</div>
+                        <div class="calendar-header border-end fw-semibold p-2 text-center">Sábado</div>
+                        <div class="calendar-header fw-semibold p-2 text-center">Domingo</div>
 
                     </div>
                 </div>
@@ -149,7 +177,7 @@
             <div>
                 <h2 class="h5 fw-bold mb-3">Asignaturas matriculadas</h2>
                 <div class="table-responsive">
-                    <table class="table table-hover bg-white rounded-3 shadow-sm overflow-hidden mb-0">
+                    <table class="table table-hover bg-body rounded-3 shadow-sm overflow-hidden mb-0">
                         <thead class="table-light">
                             <tr>
                                 <th class="fw-semibold">Código</th>
@@ -172,7 +200,7 @@
         </section>
     </main>
 
-    <footer class="border-top bg-white mt-4">
+    <footer class="border-top bg-body mt-4">
         <div class="container py-3">
             <p class="small text-secondary mb-0">CourseSwap · Intercambio de grupos de materias UIS</p>
         </div>

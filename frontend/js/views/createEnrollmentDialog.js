@@ -27,7 +27,7 @@ export const createEnrollmentDialog = () => {
                 </select>
               </div>
 
-              <div class="border rounded bg-light p-3 d-none" id="enrollment-schedule-container">
+              <div class="border rounded bg-body-tertiary p-3 d-none" id="enrollment-schedule-container">
                 <p class="small text-uppercase text-secondary fw-semibold mb-2">Horario</p>
                 <div id="enrollment-schedule" aria-live="polite"></div>
               </div>

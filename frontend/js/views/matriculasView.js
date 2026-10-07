@@ -334,7 +334,7 @@ const buildCalendarRows = (calendarGrid) => {
   for (let hour = START_HOUR; hour <= END_HOUR; hour += 1) {
     const timeLabel = document.createElement("div");
     timeLabel.className =
-      "time-slot bg-light fw-semibold p-2 text-center text-secondary small";
+      "time-slot bg-body-tertiary fw-semibold p-2 text-center text-body-secondary small";
     timeLabel.textContent = `${String(hour).padStart(2, "0")}:00`;
     rows.appendChild(timeLabel);
 
