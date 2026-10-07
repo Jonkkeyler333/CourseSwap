@@ -1,14 +1,21 @@
 # CourseSwap
-
 CourseSwap es una aplicación web para estudiantes de la Universidad Industrial de
 Santander (UIS) que necesitan cambiarse de grupo en una materia. El sistema
 conecta a estudiantes con necesidades de intercambio compatibles y evita que el
 cambio se ejecute hasta que las dos personas lo confirmen.
 
-> **Estado actual:** MVP funcional en desarrollo. El flujo principal de
-> solicitudes y matches está conectado de extremo a extremo; la pantalla de
-> consulta y gestión visual de matrículas todavía está incompleta y la
-> cobertura de pruebas es mínima.
+## Integrantes 
+Entornos de Programacion F1 2026-2
+- Alejandro Castro Rondon - 2230045
+- Jonk Keyler sanchez pabon - 2221551
+- Juan Carlos Elizalde Padilla - 2230028
+
+## Despliegue
+- Enlace Backend desplegado: [https://courseswap.onrender.com/swagger-ui/index.html](https://courseswap.onrender.com/swagger-ui/index.html)
+- Enlace Frontend desplegado: [https://jonkkeyler333.github.io/CourseSwap/](https://jonkkeyler333.github.io/CourseSwap/)
+
+## JWT
+La consulta y detalles de implementación de JWT se encuentran en el siguiente reporte: [JWT Implementation Report](./media/Investigacion_JWT.pdf)
 
 ## Motivación y problema que resuelve
 
@@ -37,23 +44,16 @@ con un sistema académico externo de la UIS.
 | Registro de estudiantes | **Implementado** | Registro con nombre, apellido, código, correo y contraseña; validación y hash con BCrypt. |
 | Inicio de sesión | **Implementado** | Autenticación con Spring Security y JWT con expiración configurada. |
 | Consulta del perfil autenticado | **Implementado** | Recuperación del estudiante actual mediante `GET /api/estudiantes/me`. |
-| Consulta de materias, grupos y horarios | **Implementado en backend / Parcial en frontend** | La API ofrece búsquedas y horarios; el frontend consume materias para crear solicitudes. |
-| Consulta de matrículas | **Implementado en backend / Parcial en frontend** | La API y el servicio JavaScript existen, pero la vista todavía no carga los datos ni llena la tabla/calendario. |
-| Creación de matrículas | **Implementado en backend** | Valida estudiante, materia, grupo, correspondencia y matrícula duplicada; no existe flujo de alta en la interfaz. |
+| Consulta de materias, grupos y horarios | **Implementado** | La API ofrece búsquedas y horarios; el frontend consume materias para crear solicitudes. |
+| Consulta de matrículas | **Implementado** | La API permite consultar las matrículas del estudiante y la UI muestra los resultados. |
+| Creación de matrículas | **Implementado** | El sistema permite crear una matrícula desde la interfaz. |
 | Creación, edición y cancelación de solicitudes | **Implementado** | El estudiante gestiona sus solicitudes y sus estados. |
 | Validación de conflictos de horario | **Implementado** | Se valida al crear una solicitud y al aceptar una coincidencia manual. |
 | Matching automático | **Implementado** | Detecta solicitudes inversas para la misma materia y crea un match. |
 | Búsqueda y matching manual | **Implementado** | Permite consultar solicitudes compatibles y aceptarlas desde la interfaz. |
 | Confirmación bilateral del intercambio | **Implementado** | Cada participante confirma o cancela el match. |
-| Ejecución e historial del intercambio | **Implementado en backend** | Al confirmar ambas partes se intercambian los grupos y se registra `CambioEjecutado`. |
+| Ejecución e historial del intercambio | **Implementado** | Al confirmar ambas partes se intercambian los grupos y se registra `CambioEjecutado`. |
 | Tema claro/oscuro y guard de sesión | **Implementado** | Preferencia persistida en `localStorage` y redirección ante sesiones no autenticadas. |
-| Pruebas automatizadas | **Básico** | Actualmente se observa una prueba de carga del contexto de Spring; no hay suite frontend. |
-
-Este estado sirve como referencia para evaluar el avance: **Implementado**
-significa que la capacidad está presente en el código revisado; **Parcial**
-indica que existe en la API o en un módulo, pero no está completamente
-integrada en la experiencia de usuario; **Básico** identifica una capacidad
-con cobertura limitada.
 
 ## Tecnologías empleadas
 
@@ -78,28 +78,20 @@ con cobertura limitada.
 - `localStorage` para token, usuario y preferencia de tema.
 - No utiliza framework frontend, TypeScript, bundler ni `package.json`.
 
-### Infraestructura
+### Despliegue
 
-- Docker Compose para levantar PostgreSQL.
-- La base de datos se publica localmente en el puerto `5437`; la API usa el
-  puerto `8080`.
+- Render para el backend mednainte un contenedor que realiza el build de Maven y ejecuta la aplicación.
+- Render para la base de datos PostgreSQL.
+- GitHub Pages para el frontend mediante un github action que deploya la aplicación.
 
 ## Arquitectura
 
 ### Backend: API REST monolítica por capas
 
 El backend sigue una arquitectura clásica de API REST con separación por
-responsabilidades:
+responsabilidades como se muestra en la siguiente figura:
 
-```text
-Cliente HTTP
-    |
-    v
-Controllers -> Services -> Repositories -> JPA/Hibernate -> PostgreSQL
-    |              |
-    v              v
-   DTOs      reglas de negocio y transacciones
-```
+<img src="./media/arquitectura.png" alt="Arquitectura por capas" width="600">
 
 - **Controllers:** reciben requests, validan DTOs y delegan la operación.
 - **Services:** concentran reglas como compatibilidad, conflictos de horario,
@@ -114,6 +106,10 @@ Controllers -> Services -> Repositories -> JPA/Hibernate -> PostgreSQL
 
 Las entidades principales son `Estudiante`, `Materia`, `Grupo`, `HorarioGrupo`,
 `Matricula`, `SolicitudCambio`, `MatchPropuesto` y `CambioEjecutado`.
+
+### Despliegue
+En la siguiente figura se detalla los servicios desplegados y la comunicación entre ellos:
+<img src="./media/despliegue.png" alt="Despliegue" width="600">
 
 ### Frontend: Multi-Page Application modular orientada a vistas
 
@@ -239,16 +235,3 @@ Authorization: Bearer <jwt>
 | Matrículas | `POST /api/matriculas/`, `GET /api/matriculas/{id}` |
 | Solicitudes | `GET/POST /api/solicitudes/`, `PUT /api/solicitudes/`, `DELETE /api/solicitudes/{id}`, `GET /api/solicitudes/buscar` |
 | Matching | `POST /api/solicitudes/{id}/match-manual`, `GET /api/match/me`, `POST /api/match/{id}/confirm`, `POST /api/match/{id}/cancel` |
-
-## Próximos pasos
-
-- Completar la integración de `MatriculaService` con la vista de matrículas
-  para mostrar la tabla y el calendario real.
-- Incorporar el guard de autenticación y las acciones de gestión de matrícula
-  en esa pantalla.
-- Ampliar las pruebas de integración del backend y añadir pruebas del
-  frontend.
-- Reactivar o documentar explícitamente la estrategia de carga de `data.sql`
-  para entornos de desarrollo.
-- Sustituir valores sensibles de configuración por variables de entorno antes
-  de desplegar.
