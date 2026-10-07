@@ -34,6 +34,9 @@ export const initMatriculasView = async () => {
   const alertElement = document.getElementById("enrollment-form-alert");
   const submitButton = document.getElementById("create-enrollment-button");
   const coursesBody = document.getElementById("courses-tbody");
+  const modalElement = document.getElementById("create-enrollment-modal");
+  const modalTitle = document.getElementById("create-enrollment-title");
+  const openButton = document.getElementById("open-enrollment-button");
 
   if (!calendarGrid || !form || !subjectSelect || !groupSelect) {
     return;
@@ -45,15 +48,25 @@ export const initMatriculasView = async () => {
   let selectedSchedule = [];
   let selectedSubject = null;
   let selectedGroup = null;
+  let scheduleHasConflict = false;
+  let editingEnrollmentId = null;
+  let enrollmentRecords = [];
+  let availableSubjects = [];
+  const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
 
   try {
     student = await AuthService.me();
     const subjects = normalizeList(
       await MateriaService.getAvailableMaterias(student.id),
     );
+    availableSubjects = subjects;
     const enrollments = normalizeList(await MatriculaService.getMatricula());
     populateSubjects(subjectSelect, subjects);
-    await renderExistingEnrollments(calendarGrid, coursesBody, enrollments);
+    enrollmentRecords = await renderExistingEnrollments(
+      calendarGrid,
+      coursesBody,
+      enrollments,
+    );
   } catch (error) {
     showAlert(
       alertElement,
@@ -61,11 +74,108 @@ export const initMatriculasView = async () => {
     );
   }
 
+  openButton.addEventListener("click", () => {
+    editingEnrollmentId = null;
+    selectedSubject = null;
+    selectedGroup = null;
+    selectedSchedule = [];
+    scheduleHasConflict = false;
+    modalTitle.textContent = "Añadir matrícula";
+    submitButton.textContent = "Crear matrícula";
+    subjectSelect.disabled = false;
+    populateSubjects(subjectSelect, availableSubjects);
+    form.reset();
+    resetGroups(groupSelect);
+    resetSchedule(scheduleContainer, scheduleElement);
+    hideAlert(alertElement);
+    submitButton.disabled = false;
+  });
+
+  coursesBody.addEventListener("click", async (event) => {
+    const actionButton = event.target.closest("button[data-enrollment-action]");
+    if (!actionButton) {
+      return;
+    }
+
+    const enrollmentId = actionButton.dataset.enrollmentId;
+    const enrollment = enrollmentRecords.find(
+      (item) => String(item.id) === String(enrollmentId),
+    );
+
+    if (!enrollment) {
+      return;
+    }
+
+    if (actionButton.dataset.enrollmentAction === "delete") {
+      if (!window.confirm("¿Deseas eliminar esta matrícula?")) {
+        return;
+      }
+
+      try {
+        await MatriculaService.deleteMatricula(enrollmentId);
+        enrollmentRecords = enrollmentRecords.filter(
+          (item) => String(item.id) !== String(enrollmentId),
+        );
+        availableSubjects = [
+          ...availableSubjects,
+          {
+            id: enrollment.materiaId,
+            codigo: enrollment.materiaCodigo,
+            nombre: enrollment.materiaNombre,
+          },
+        ];
+        populateSubjects(subjectSelect, availableSubjects);
+        rebuildEnrollmentDisplay(calendarGrid, coursesBody, enrollmentRecords);
+      } catch (error) {
+        showAlert(
+          alertElement,
+          error.message || "No se pudo eliminar la matrícula.",
+        );
+      }
+      return;
+    }
+
+    editingEnrollmentId = enrollment.id;
+    selectedSubject = {
+      id: enrollment.materiaId,
+      code: enrollment.materiaCodigo,
+      name: enrollment.materiaNombre,
+    };
+    selectedSchedule = normalizeList(
+      enrollment.schedule ||
+        (await MateriaService.getGroupSchedules(enrollment.grupoId)),
+    );
+    selectedGroup = {
+      id: enrollment.grupoId,
+      name: enrollment.grupoNombre,
+      professor: enrollment.grupoProfesor,
+    };
+    modalTitle.textContent = "Editar matrícula";
+    submitButton.textContent = "Guardar cambios";
+    subjectSelect.disabled = true;
+    populateSubjects(subjectSelect, [selectedSubject]);
+    subjectSelect.value = String(selectedSubject.id);
+    const groups = normalizeList(
+      await MateriaService.getGroupsByMateria(selectedSubject.id),
+    );
+    populateGroups(groupSelect, groups);
+    groupSelect.value = String(selectedGroup.id);
+    renderSchedulePreview(scheduleContainer, scheduleElement, selectedSchedule);
+    scheduleHasConflict = hasScheduleConflict(
+      selectedSchedule,
+      enrollmentRecords,
+      editingEnrollmentId,
+    );
+    submitButton.disabled = scheduleHasConflict;
+    modal.show();
+  });
+
   subjectSelect.addEventListener("change", async () => {
     hideAlert(alertElement);
     selectedSubject = getSelectedOptionData(subjectSelect);
     selectedGroup = null;
     selectedSchedule = [];
+    scheduleHasConflict = false;
     resetSchedule(scheduleContainer, scheduleElement);
     resetGroups(groupSelect);
 
@@ -92,6 +202,7 @@ export const initMatriculasView = async () => {
   groupSelect.addEventListener("change", async () => {
     selectedGroup = getSelectedOptionData(groupSelect);
     selectedSchedule = [];
+    scheduleHasConflict = false;
     resetSchedule(scheduleContainer, scheduleElement);
 
     if (!groupSelect.value) {
@@ -109,6 +220,19 @@ export const initMatriculasView = async () => {
         scheduleElement,
         selectedSchedule,
       );
+      scheduleHasConflict = hasScheduleConflict(
+        selectedSchedule,
+        enrollmentRecords,
+        editingEnrollmentId,
+      );
+      submitButton.disabled = scheduleHasConflict;
+      if (scheduleHasConflict) {
+        showAlert(
+          alertElement,
+          "El horario seleccionado se cruza con otra materia matriculada.",
+          "warning",
+        );
+      }
     } catch (error) {
       showAlert(alertElement, error.message || "No se pudo cargar el horario.");
     } finally {
@@ -128,37 +252,78 @@ export const initMatriculasView = async () => {
       return;
     }
 
+    if (scheduleHasConflict) {
+      showAlert(
+        alertElement,
+        "No puedes guardar un grupo cuyo horario se cruza con otra materia.",
+        "warning",
+      );
+      return;
+    }
+
     submitButton.disabled = true;
 
     try {
-      await MatriculaService.createMatricula({
+      const response = editingEnrollmentId
+        ? await MatriculaService.updateMatricula(editingEnrollmentId, {
+            grupoId: Number(selectedGroup.id),
+          })
+        : await MatriculaService.createMatricula({
+            materiaId: Number(selectedSubject.id),
+            grupoId: Number(selectedGroup.id),
+            estudianteId: Number(student.id),
+          });
+
+      const updatedEnrollment = {
+        ...(enrollmentRecords.find(
+          (enrollment) => String(enrollment.id) === String(editingEnrollmentId),
+        ) || {}),
+        ...(response || {}),
+        id: response?.id || editingEnrollmentId,
         materiaId: Number(selectedSubject.id),
+        materiaCodigo: selectedSubject.code,
+        materiaNombre: selectedSubject.name,
         grupoId: Number(selectedGroup.id),
-        estudianteId: Number(student.id),
-      });
+        grupoNombre: selectedGroup.name,
+        grupoProfesor: selectedGroup.professor,
+        schedule: selectedSchedule,
+      };
 
-      renderScheduleOnCalendar(
-        calendarGrid,
-        selectedSchedule,
-        selectedSubject,
-        selectedGroup,
+      enrollmentRecords = editingEnrollmentId
+        ? enrollmentRecords.map((enrollment) =>
+            String(enrollment.id) === String(editingEnrollmentId)
+              ? updatedEnrollment
+              : enrollment,
+          )
+        : [...enrollmentRecords, updatedEnrollment];
+      rebuildEnrollmentDisplay(calendarGrid, coursesBody, enrollmentRecords);
+
+      showAlert(
+        alertElement,
+        editingEnrollmentId
+          ? "Matrícula actualizada correctamente."
+          : "Matrícula creada correctamente.",
+        "success",
       );
-      appendCourseRow(coursesBody, selectedSubject, selectedGroup);
-
-      showAlert(alertElement, "Matrícula creada correctamente.", "success");
       form.reset();
       selectedSubject = null;
       selectedGroup = null;
       selectedSchedule = [];
+      scheduleHasConflict = false;
+      editingEnrollmentId = null;
       resetGroups(groupSelect);
       resetSchedule(scheduleContainer, scheduleElement);
+      subjectSelect.disabled = false;
+      modalTitle.textContent = "Añadir matrícula";
+      submitButton.textContent = "Crear matrícula";
+      modal.hide();
     } catch (error) {
       showAlert(
         alertElement,
         error.message || "No se pudo crear la matrícula.",
       );
     } finally {
-      submitButton.disabled = false;
+      submitButton.disabled = scheduleHasConflict;
     }
   });
 };
@@ -286,12 +451,13 @@ const appendCourseRow = (coursesBody, subject, group) => {
     return;
   }
 
-  const loadingRow = coursesBody.querySelector("td[colspan='4']");
+  const loadingRow = coursesBody.querySelector("td[colspan='5']");
   if (loadingRow) {
     coursesBody.replaceChildren();
   }
 
   const row = document.createElement("tr");
+  row.dataset.enrollmentId = group.enrollmentId || "";
   [
     subject.code || "--",
     subject.name || "Materia",
@@ -302,6 +468,20 @@ const appendCourseRow = (coursesBody, subject, group) => {
     cell.textContent = value;
     row.appendChild(cell);
   });
+
+  const actionsCell = document.createElement("td");
+  actionsCell.className = "text-nowrap";
+  actionsCell.innerHTML = `
+    <button class="btn btn-outline-primary btn-sm me-1" type="button"
+      data-enrollment-action="edit" data-enrollment-id="${group.enrollmentId}">
+      Editar
+    </button>
+    <button class="btn btn-outline-danger btn-sm" type="button"
+      data-enrollment-action="delete" data-enrollment-id="${group.enrollmentId}">
+      Eliminar
+    </button>
+  `;
+  row.appendChild(actionsCell);
   coursesBody.appendChild(row);
 };
 
@@ -314,6 +494,7 @@ const renderExistingEnrollments = async (
     coursesBody.replaceChildren();
   }
 
+  const records = [];
   for (const enrollment of enrollments) {
     const subject = {
       code: enrollment.materiaCodigo,
@@ -323,15 +504,44 @@ const renderExistingEnrollments = async (
       id: enrollment.grupoId,
       name: enrollment.grupoNombre,
       professor: enrollment.grupoProfesor,
+      enrollmentId: enrollment.id,
     };
-
-    appendCourseRow(coursesBody, subject, group);
 
     const schedule = normalizeList(
       await MateriaService.getGroupSchedules(enrollment.grupoId),
     );
+    records.push({ ...enrollment, schedule });
+    appendCourseRow(coursesBody, subject, group);
     renderScheduleOnCalendar(calendarGrid, schedule, subject, group);
   }
+
+  return records;
+};
+
+const rebuildEnrollmentDisplay = (calendarGrid, coursesBody, enrollments) => {
+  calendarGrid.querySelectorAll(".calendar-course").forEach((course) => {
+    course.remove();
+  });
+  coursesBody.replaceChildren();
+
+  enrollments.forEach((enrollment) => {
+    const subject = {
+      code: enrollment.materiaCodigo,
+      name: enrollment.materiaNombre,
+    };
+    const group = {
+      enrollmentId: enrollment.id,
+      name: enrollment.grupoNombre,
+      professor: enrollment.grupoProfesor,
+    };
+    appendCourseRow(coursesBody, subject, group);
+    renderScheduleOnCalendar(
+      calendarGrid,
+      enrollment.schedule || [],
+      subject,
+      group,
+    );
+  });
 };
 
 const getSelectedOptionData = (select) => {
@@ -359,6 +569,42 @@ const normalizeList = (data) => {
     data?.grupos ||
     []
   );
+};
+
+const hasScheduleConflict = (schedule, enrollments, ignoredEnrollmentId) => {
+  return schedule.some((candidate) =>
+    enrollments
+      .filter(
+        (enrollment) => String(enrollment.id) !== String(ignoredEnrollmentId),
+      )
+      .some((enrollment) =>
+        (enrollment.schedule || []).some((existing) =>
+          schedulesOverlap(candidate, existing),
+        ),
+      ),
+  );
+};
+
+const schedulesOverlap = (first, second) => {
+  if (getDayIndex(first) !== getDayIndex(second)) {
+    return false;
+  }
+
+  const firstStart = getTimeInMinutes(first, "start");
+  const firstEnd = getTimeInMinutes(first, "end");
+  const secondStart = getTimeInMinutes(second, "start");
+  const secondEnd = getTimeInMinutes(second, "end");
+
+  return firstStart < secondEnd && secondStart < firstEnd;
+};
+
+const getTimeInMinutes = (schedule, boundary) => {
+  const value =
+    boundary === "start"
+      ? (schedule.horaInicio ?? schedule.hora_inicio ?? schedule.startTime)
+      : (schedule.horaFin ?? schedule.hora_fin ?? schedule.endTime);
+  const [hours = 0, minutes = 0] = String(value || "00:00").split(":");
+  return Number(hours) * 60 + Number(minutes);
 };
 
 const getDayIndex = (schedule) => {

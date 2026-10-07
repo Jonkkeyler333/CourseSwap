@@ -20,4 +20,18 @@ export const MatriculaService = {
     });
     return data;
   },
+
+  async updateMatricula(matriculaId, matriculaData) {
+    const data = await fetchAPI(`/matriculas/${matriculaId}`, {
+      method: "PATCH",
+      body: JSON.stringify(matriculaData),
+    });
+    return data;
+  },
+
+  async deleteMatricula(matriculaId) {
+    return fetchAPI(`/matriculas/${matriculaId}`, {
+      method: "DELETE",
+    });
+  },
 };
