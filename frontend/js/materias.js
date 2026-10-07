@@ -2,6 +2,13 @@ import { CONFIG } from "./config.js";
 import { fetchAPI } from "./api.js";
 
 export const MateriaService = {
+  async getAvailableMaterias(estudianteId) {
+    const data = await fetchAPI(
+      `/estudiantes/${estudianteId}/materias-disponibles`,
+    );
+    return data;
+  },
+
   async getMaterias(nombre) {
     if (!nombre) {
       const data = await fetchAPI("/materias/all");
@@ -34,11 +41,8 @@ export const MateriaService = {
     const data = await fetchAPI(`/grupos?${params.toString()}`);
     return data;
   },
-  async getGroupSchedules(grupoId, codigoMateria) {
-    const horarios = await this.getMateriaHorarios(codigoMateria);
-    return horarios.filter(
-      (horario) =>
-        String(horario.idGrupo ?? horario.grupoId) === String(grupoId),
-    );
+  async getGroupSchedules(grupoId) {
+    const data = await fetchAPI(`/grupos/${grupoId}/horarios`);
+    return data;
   },
 };

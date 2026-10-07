@@ -48,8 +48,12 @@ export const initMatriculasView = async () => {
 
   try {
     student = await AuthService.me();
-    const subjects = normalizeList(await MateriaService.getMaterias());
+    const subjects = normalizeList(
+      await MateriaService.getAvailableMaterias(student.id),
+    );
+    const enrollments = normalizeList(await MatriculaService.getMatricula());
     populateSubjects(subjectSelect, subjects);
+    await renderExistingEnrollments(calendarGrid, coursesBody, enrollments);
   } catch (error) {
     showAlert(
       alertElement,
@@ -58,6 +62,7 @@ export const initMatriculasView = async () => {
   }
 
   subjectSelect.addEventListener("change", async () => {
+    hideAlert(alertElement);
     selectedSubject = getSelectedOptionData(subjectSelect);
     selectedGroup = null;
     selectedSchedule = [];
@@ -97,10 +102,7 @@ export const initMatriculasView = async () => {
 
     try {
       selectedSchedule = normalizeList(
-        await MateriaService.getGroupSchedules(
-          groupSelect.value,
-          selectedSubject.code,
-        ),
+        await MateriaService.getGroupSchedules(groupSelect.value),
       );
       renderSchedulePreview(
         scheduleContainer,
@@ -301,6 +303,35 @@ const appendCourseRow = (coursesBody, subject, group) => {
     row.appendChild(cell);
   });
   coursesBody.appendChild(row);
+};
+
+const renderExistingEnrollments = async (
+  calendarGrid,
+  coursesBody,
+  enrollments,
+) => {
+  if (coursesBody) {
+    coursesBody.replaceChildren();
+  }
+
+  for (const enrollment of enrollments) {
+    const subject = {
+      code: enrollment.materiaCodigo,
+      name: enrollment.materiaNombre,
+    };
+    const group = {
+      id: enrollment.grupoId,
+      name: enrollment.grupoNombre,
+      professor: enrollment.grupoProfesor,
+    };
+
+    appendCourseRow(coursesBody, subject, group);
+
+    const schedule = normalizeList(
+      await MateriaService.getGroupSchedules(enrollment.grupoId),
+    );
+    renderScheduleOnCalendar(calendarGrid, schedule, subject, group);
+  }
 };
 
 const getSelectedOptionData = (select) => {
