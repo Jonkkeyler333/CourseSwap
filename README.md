@@ -37,6 +37,14 @@ el grupo deseado no produzca conflictos de horario. El intercambio se realiza
 sobre las matrículas almacenadas en CourseSwap; no es una integración directa
 con un sistema académico externo de la UIS.
 
+## Modelo de base de datos
+El modelo de base de datos que muestra las entidades y relaciones es el siguiente:
+<img src="./media/er_model.png" alt="Modelo de base de datos" width="600">
+
+## Diagrama de estados
+El siguiente diagrama de estados y transiciones, muestra el flujo que siguen los estados tanto de las solicitudes como de los matches propuestos, desde la creación de la solicitud hasta la ejecución del cambio:
+<img src="./media/state_diagram.png" alt="Diagrama de estados" width="600">
+
 ## Requisitos funcionales y estado
 
 | Requisito | Estado actual | Descripción |
@@ -167,6 +175,10 @@ CourseSwap/
 ├── docker-compose.yml           # PostgreSQL local
 └── README.md
 ```
+## JIRA
+El proyecto se gestiona con JIRA, donde se registran historias de usuario, tareas y bugs. Como se muestra en la siguiente figura, se creó un tablero para gestionar las historias de usuario y su progreso : 
+<img src="./media/jira.png" alt="JIRA Board" width="600">
+
 
 ## Puesta en marcha local
 
