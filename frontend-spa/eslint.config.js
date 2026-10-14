@@ -38,9 +38,10 @@ export default defineConfig([
 
       // Reglas de Indentación y Estilo
       '@stylistic/indent': ['error', 2], // Indentación de 2 espacios
-      '@stylistic/jsx-indent': ['error', 2], // Indentación de 2 espacios dentro del JSX
+      // '@stylistic/jsx-indent': ['error', 2], // Indentación de 2 espacios dentro del JSX
       '@stylistic/quotes': ['error', 'single'], // Uso obligatorio de comillas simples
       '@stylistic/semi': ['error', 'never'], // Sin punto y coma al final de las líneas
+      'react/prop-types': 'off',
       '@stylistic/jsx-curly-brace-presence': [
         'error',
         { props: 'never', children: 'never' },
