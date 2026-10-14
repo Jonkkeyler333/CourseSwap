@@ -23,7 +23,7 @@ const AuthPage = () => {
         setMessage('')
         setType('')
         navigate('/')
-      }, 1500)
+      }, 1300)
     } catch (error) {
       const serverMessage = error.response?.data?.message
       setMessage(serverMessage || 'Error al iniciar sesión')
@@ -36,12 +36,42 @@ const AuthPage = () => {
     }
   }
 
+  const handleRegister = async (userData) => {
+    if (userData.password !== userData.confirmPassword) {
+      setMessage('Las contraseñas no coinciden')
+      setType('error')
+      setTimeout(() => {
+        setMessage('')
+        setType('')
+      }, 3000)
+      return
+    }
+    try {
+      const response = await authService.registerUser(userData)
+      setMessage(`Registro del estudiante con codigo ${response.codigo} exitoso, ahora puedes iniciar sesión`)
+      setType('success')
+      setTimeout(() => {
+        setMessage('')
+        setType('')
+      }, 3000)
+    } catch (error) {
+      const serverMessage = error.response?.data?.message
+      console.log(error)
+      setMessage(serverMessage || 'Error al registrar usuario')
+      setType('error')
+      setTimeout(() => {
+        setMessage('')
+        setType('')
+      }, 3000)
+    }
+  }
+
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Typography variant="h2" component="h1">
         Bienvenido a CourseSwap
       </Typography>
-      <MyTabs onLogin={handleLogin} onRegister={console.log('hola')} />
+      <MyTabs onLogin={handleLogin} onRegister={handleRegister} />
       <Notification message={notification} type={typeNotify}/>
     </Container>
 

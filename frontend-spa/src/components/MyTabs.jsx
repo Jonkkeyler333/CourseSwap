@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Box, Tabs, Tab } from '@mui/material'
 import TabPanel from './TabPanel'
 import LoginForm from './LoginForm'
-// import RegisterForm from './RegisterForm'
+import RegisterForm from './RegisterForm'
 
 const MyTabs = ({ onLogin, onRegister }) => {
   const [tab, setTab] = useState(0)
@@ -22,8 +22,7 @@ const MyTabs = ({ onLogin, onRegister }) => {
         <LoginForm onLogin={onLogin} />
       </TabPanel>
       <TabPanel value={tab} index={1}>
-        {/* <RegisterForm onRegister={onRegister} /> */}
-        xd
+        <RegisterForm onRegister={onRegister} />
       </TabPanel>
     </Box>
   )

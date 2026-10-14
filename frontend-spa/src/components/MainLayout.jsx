@@ -1,7 +1,8 @@
 import { useAuth } from '../hooks/useAuth'
-import { AppBar, Container, Toolbar, Link, Typography, Button } from '@mui/material'
+import { AppBar, Container, Toolbar, Link, Typography, Button, Box } from '@mui/material'
 import { Outlet } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
+import logo from '../assets/CourseSwap_transparent.png'
 
 const MainLayout = ({ user }) => {
   const { logout } = useAuth()
@@ -14,11 +15,16 @@ const MainLayout = ({ user }) => {
 
   return (
     <Container maxWidth="lg">
-      <AppBar position="static">
+      <AppBar position="static" elevation={1} >
         <Toolbar>
-          <Typography variant='h5' component='h1' sx={{ flexGrow: 1 }}>
-            CourseSwap App
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexGrow: 1 }}>
+            <Box component="img" src={logo} alt="CourseSwap logo" sx={{ height: 50 }} />
+            <Typography variant="h4" component="h1">
+              CourseSwap
+            </Typography>
+          </Box>
+
+          
           
           <Button color="inherit" component={Link} to="/" sx={{ ml: 2 }}>
             Inicio
