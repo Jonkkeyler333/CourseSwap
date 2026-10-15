@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import MainLayout from './components/MainLayout'
 import NotFoundPage from './pages/NotFoundPage'
 import DashboardPage from './pages/DashboardPage'
+import SolicitudesPage from './pages/SolicitudesPage'
 
 
 const RootRoute = () => {
@@ -33,7 +34,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'solicitudes',
-        element: <h1>Mis Solicitudes</h1>
+        element: <SolicitudesPage />
       },
       {
         path: 'horario',
