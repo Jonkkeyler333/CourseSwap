@@ -17,8 +17,8 @@ const createSolicitud = async (solicitudData) => {
       'Todos los campos son obligatorios para crear una solicitud.',
     )
   }
-  const data = await api('/solicitudes/', solicitudData)
-  return data
+  const response = await api.post('/solicitudes/', solicitudData)
+  return response.data
 }
 
 const updateSolicitud = async (solicitudId, nuevoGrupoId) => {

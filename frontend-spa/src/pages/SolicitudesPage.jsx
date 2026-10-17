@@ -1,6 +1,7 @@
 import { Alert, CircularProgress, Container, Grid, Stack, Typography } from '@mui/material'
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined'
 import SolicitudCard from '../components/SolicitudCard'
+import SolicitudForm from '../components/SolicitudForm'
 import { useAuth } from '../hooks/useAuth'
 import { useSolicitudes } from '../hooks/useSolicitudes'
 
@@ -20,6 +21,10 @@ const SolicitudesPage = () => {
         <Typography variant="body1" color="text.secondary">
           Consulta tus solicitudes activas o publica una nueva búsqueda de cambio de grupo.
         </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Recuerda que solo puedes tener una solicitud activa por materia.
+        </Typography>
+        { user && <SolicitudForm user={user} solicitudes={solicitudesEstudiante}/>}
       </Stack>
 
       {isLoading && (
@@ -48,7 +53,7 @@ const SolicitudesPage = () => {
 
       {!isLoading && !isError && solicitudesEstudiante?.length > 0 && (
         <Grid container spacing={3} sx={{ pb: 5 }}>
-          {solicitudesEstudiante.map((solicitud) => (
+          {solicitudesEstudiante.sort((a, b) => b.id - a.id).map((solicitud) => (
             <Grid key={solicitud.id} size={{ xs: 12, md: 6 }}>
               <SolicitudCard solicitud={solicitud} />
             </Grid>

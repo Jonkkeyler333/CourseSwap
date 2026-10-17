@@ -36,7 +36,6 @@ const statusConfig = {
 }
 
 const SolicitudCard = ({ solicitud, actions = null }) => {
-  console.log(solicitud)
   const status = statusConfig[solicitud.estado] || {
     label: solicitud.estado || 'Sin estado',
     color: 'default',
