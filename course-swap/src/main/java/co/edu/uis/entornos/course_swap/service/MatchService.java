@@ -10,6 +10,7 @@ import co.edu.uis.entornos.course_swap.repository.MatriculaRepository;
 import co.edu.uis.entornos.course_swap.repository.SolicitudCambioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,12 +23,14 @@ public class MatchService {
     private final MatriculaRepository matriculaRepository;
     private final SolicitudCambioRepository solicitudCambioRepository;
     private final CambioEjecutadoRepository cambioEjecutadoRepository;
+    private final EmailService emailService;
 
-    public MatchService(MatchRepository matchRepository, MatriculaRepository matriculaRepository, SolicitudCambioRepository solicitudCambioRepository, CambioEjecutadoRepository cambioEjecutadoRepository) {
+    public MatchService(MatchRepository matchRepository, MatriculaRepository matriculaRepository, SolicitudCambioRepository solicitudCambioRepository, CambioEjecutadoRepository cambioEjecutadoRepository, EmailService emailService) {
         this.matchRepository = matchRepository;
         this.matriculaRepository = matriculaRepository;
         this.solicitudCambioRepository = solicitudCambioRepository;
         this.cambioEjecutadoRepository = cambioEjecutadoRepository;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -59,6 +62,22 @@ public class MatchService {
         if (match.isConfirmadoPorA() && match.isConfirmadoPorB()) {
             exchangeGrupos(match, solicitudA, solicitudB);
             match.setEstado(MatchEstados.CONFIRMADO);
+            Context contextEst1 = new Context();
+            contextEst1.setVariable("estudiante", solicitudA.getEstudiante().getNombre());
+            contextEst1.setVariable("materia", solicitudA.getMateria().getNombre());
+            contextEst1.setVariable("matchId", match.getId());
+            contextEst1.setVariable("materiaCodigo", solicitudA.getMateria().getCodigo());
+            contextEst1.setVariable("grupoNuevo", solicitudA.getGrupoDeseado());
+            emailService.sendEmail(solicitudA.getEstudiante().getEmail(), "Tu intercambio se hizo realidad !!", "match-confirmado.html", contextEst1);
+
+            Context contextEst2 = new Context();
+            contextEst2.setVariable("estudiante", solicitudB.getEstudiante().getNombre());
+            contextEst2.setVariable("materia", solicitudB.getMateria().getNombre());
+            contextEst2.setVariable("matchId", match.getId());
+            contextEst2.setVariable("materiaCodigo", solicitudB.getMateria().getCodigo());
+            contextEst2.setVariable("grupoNuevo", solicitudB.getGrupoDeseado());
+            emailService.sendEmail(solicitudB.getEstudiante().getEmail(), "Tu intercambio se hizo realidad !!", "match-confirmado.html", contextEst2);
+
         }
         matchRepository.save(match);
         return new MatchCreateDTO(

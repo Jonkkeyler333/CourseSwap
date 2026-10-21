@@ -7,6 +7,8 @@ import co.edu.uis.entornos.course_swap.dto.LoginRequestDTO;
 import co.edu.uis.entornos.course_swap.exception.ResourceNotFoundException;
 import co.edu.uis.entornos.course_swap.model.Estudiante;
 import co.edu.uis.entornos.course_swap.repository.EstudianteRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -15,6 +17,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 public class AuthService {
     private final EstudianteRepository estudianteRepository;
@@ -22,7 +26,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthService(EstudianteRepository estudianteRepository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager) {
+    public AuthService(EstudianteRepository estudianteRepository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager, EmailService emailService) {
         this.estudianteRepository = estudianteRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -73,5 +77,4 @@ public class AuthService {
                 .codigo(estudiante.getCodigo())
                 .build();
     }
-
 }

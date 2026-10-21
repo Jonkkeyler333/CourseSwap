@@ -5,6 +5,7 @@ import co.edu.uis.entornos.course_swap.dto.EstudianteRegisterDTO;
 import co.edu.uis.entornos.course_swap.dto.EstudianteResponseDTO;
 import co.edu.uis.entornos.course_swap.dto.LoginRequestDTO;
 import co.edu.uis.entornos.course_swap.service.AuthService;
+import co.edu.uis.entornos.course_swap.service.EmailService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,11 +13,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.context.Context;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,9 +30,11 @@ import java.util.Map;
 @Tag(name = "Autenticación", description = "Endpoints de autenticación y registro de estudiantes")
 public class AuthController {
     private final AuthService authService;
+    private final EmailService emailService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, EmailService emailService) {
         this.authService = authService;
+        this.emailService = emailService;
     }
 
     @GetMapping("/check")
@@ -51,6 +57,9 @@ public class AuthController {
     })
     public ResponseEntity<EstudianteResponseDTO> registerUser(@Valid @RequestBody EstudianteRegisterDTO estudiante){
         EstudianteResponseDTO estudianteResponseDTO = authService.registerUser(estudiante);
+        Context context = new Context();
+        context.setVariable("nombre", estudianteResponseDTO.getNombre());
+        emailService.sendEmail(estudianteResponseDTO.getEmail(), "Bienvenido a Course Swap", "bienvenida", context);
         return ResponseEntity.status(HttpStatus.CREATED).body(estudianteResponseDTO);
     }
 
@@ -65,5 +74,15 @@ public class AuthController {
         AuthResponseDTO authResponseDTO = authService.loginUser(loginRequest);
         return ResponseEntity.ok(authResponseDTO);
     }
+
+//    @GetMapping("/email/test")
+//    public ResponseEntity<Map<String,String>> sendTestEmail() {
+//        try {
+//            emailService.sendTestEmail("jonk2221551@correo.uis.edu.co");
+//            return ResponseEntity.ok(Map.of("message", "Correo enviado correctamente"));
+//        } catch (MailException ex) {
+//            return ResponseEntity.status(500).body(Map.of("message", "Error al enviar el correo: " + ex.getMessage()));
+//        }
+//    }
 
 }

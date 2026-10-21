@@ -10,6 +10,7 @@ import co.edu.uis.entornos.course_swap.model.*;
 import co.edu.uis.entornos.course_swap.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
 
 import java.util.List;
 import java.time.LocalDateTime;
@@ -25,14 +26,17 @@ public class SolicitudCambioService {
         private final MateriaRepository materiaRepository;
         private final MatchRepository matchRepository;
         private final SolicitudBusquedaRepository solicitudBusquedaRepository;
+        private final EmailService emailService;
 
         public SolicitudCambioService(SolicitudCambioRepository solicitudCambioRepository,
-                        MatriculaRepository matriculaRepository,
-                        EstudianteRepository estudianteRepository,
-                        GrupoRespository grupoRespository,
-                        MateriaRepository materiaRepository,
-                        MatchRepository matchRepository,
-                        SolicitudBusquedaRepository solicitudBusquedaRepository) {
+                                      MatriculaRepository matriculaRepository,
+                                      EstudianteRepository estudianteRepository,
+                                      GrupoRespository grupoRespository,
+                                      MateriaRepository materiaRepository,
+                                      MatchRepository matchRepository,
+                                      SolicitudBusquedaRepository solicitudBusquedaRepository,
+                                      EmailService emailService
+        ) {
                 this.solicitudCambioRepository = solicitudCambioRepository;
                 this.matriculaRepository = matriculaRepository;
                 this.estudianteRepository = estudianteRepository;
@@ -40,6 +44,7 @@ public class SolicitudCambioService {
                 this.materiaRepository = materiaRepository;
                 this.matchRepository = matchRepository;
                 this.solicitudBusquedaRepository = solicitudBusquedaRepository;
+                this.emailService = emailService;
         }
 
         @Transactional
@@ -88,7 +93,6 @@ public class SolicitudCambioService {
                 Optional<SolicitudCambio> matchOpt = solicitudCambioRepository.findMatch(solicitudCambio.getId());
                 if (matchOpt.isPresent()) {
                         SolicitudCambio solicitudMatch = matchOpt.get();
-
                         solicitudCambio.setEstado(SolicitudEstados.MATCHED);
                         solicitudMatch.setEstado(SolicitudEstados.MATCHED);
                         solicitudMatch.setFechaActualizacion(LocalDateTime.now());
@@ -102,6 +106,29 @@ public class SolicitudCambioService {
                         newMatch.setSolicitudCambioB(solicitudMatch);
                         newMatch.setEstado(MatchEstados.ACTIVO);
                         matchRepository.save(newMatch);
+
+                        Estudiante estudianteB = solicitudMatch.getEstudiante();
+
+                        Context contextEstA = new Context();
+                        contextEstA.setVariable("nombre", solicitudCambio.getEstudiante().getNombre());
+                        contextEstA.setVariable("materia", solicitudCambio.getMateria().getNombre());
+                        contextEstA.setVariable("codigo_match", estudianteB.getCodigo());
+                        emailService.sendEmail(solicitudCambio.getEstudiante().getEmail(), "¡Se encontró un match para tu solicitud!", "match-encontrado.html", contextEstA);
+
+                        Context contextEstB = new Context();
+                        contextEstB.setVariable("nombre", estudianteB.getNombre());
+                        contextEstB.setVariable("materia", solicitudMatch.getMateria().getNombre());
+                        contextEstB.setVariable("codigo_match", solicitudCambio.getEstudiante().getCodigo());
+                        emailService.sendEmail(estudianteB.getEmail(), "¡Se encontró un match para tu solicitud!", "match-encontrado.html", contextEstB);
+
+
+                }else {
+                        Context context = new Context();
+                        context.setVariable("nombre", estudiante.getNombre());
+                        context.setVariable("materia", materia.getNombre());
+                        context.setVariable("grupoActual", grupoActual.getNombre());
+                        context.setVariable("grupoDeseado", grupoDeseado.getNombre());
+                        emailService.sendEmail(estudiante.getEmail(), "Tu solicitud fue creada exitosamente", "solicitud-creada.html", context);
                 }
                 return mapper(solicitudCambio);
         }
@@ -199,6 +226,19 @@ public class SolicitudCambioService {
                 match.setSolicitudCambioB(solicitudAceptante);
                 match.setEstado(MatchEstados.ACTIVO);
                 match = matchRepository.save(match);
+
+                // se envia directamente el correo con el match, no se envia el de solicitud
+                Context contextEstA = new Context();
+                contextEstA.setVariable("nombre", estudiante.getNombre());
+                contextEstA.setVariable("materia", propuesta.getMateria().getNombre());
+                contextEstA.setVariable("codigo_match", propuesta.getEstudiante().getCodigo());
+                emailService.sendEmail(estudiante.getEmail(), "¡Se encontró un match para tu solicitud!", "match-encontrado.html", contextEstA);
+
+                Context contextEstB = new Context();
+                contextEstB.setVariable("nombre", propuesta.getEstudiante().getNombre());
+                contextEstB.setVariable("materia", propuesta.getMateria().getNombre());
+                contextEstB.setVariable("codigo_match", propuesta.getEstudiante().getCodigo());
+                emailService.sendEmail(propuesta.getEstudiante().getEmail(), "¡Se encontró un match para tu solicitud!", "match-encontrado.html", contextEstB);
 
                 return new MatchCreateDTO(
                                 match.getId(),
