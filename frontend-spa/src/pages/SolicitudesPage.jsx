@@ -3,11 +3,64 @@ import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined'
 import SolicitudCard from '../components/SolicitudCard'
 import SolicitudForm from '../components/SolicitudForm'
 import { useAuth } from '../hooks/useAuth'
+import { useMatch } from '../hooks/useMatch'
 import { useSolicitudes } from '../hooks/useSolicitudes'
+import Notification from '../components/Notification'
+import {useActions } from '../store/notifyStore'
+import { useMemo } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 
 const SolicitudesPage = () => {
   const { user } = useAuth()
   const { solicitudesEstudiante, isLoading, isError } = useSolicitudes(user?.id)
+  const { matches: matchesEstudiante, confirmMatch } = useMatch()
+  const { notify } = useActions()
+  const queryClient = useQueryClient()
+
+  const matchSolicitudes = useMemo( () => {
+    const mapa = new Map()
+    matchesEstudiante?.forEach( match => {
+      mapa.set(match.solicitudAId, match)
+      mapa.set(match.solicitudBId, match)
+    })
+    return mapa
+  }, [matchesEstudiante])
+
+
+  const handleConfirmMatch = async (matchId, solicitudId) => {
+    const match = matchesEstudiante.find(
+      ({ matchId: currentMatchId }) => String(currentMatchId) === String(matchId),
+    )
+
+    if (!match) {
+      notify('No se encontró el match que intentas confirmar.', 'error')
+      return
+    }
+
+    const isEstudianteA =
+      String(match.solicitudAId) === String(solicitudId)
+    const confirmationField = isEstudianteA
+      ? 'confirmadoPorA'
+      : 'confirmadoPorB'
+
+    if (match[confirmationField]) {
+      notify('Ya has confirmado este match. Espera al otro estudiante.', 'info')
+      return
+    }
+
+    try {
+      const updatedMatch = await confirmMatch(match.matchId)
+      // se cual sea el que confirmo, se debe forzar el refresh de las solicitudes para reflejar el cambio de grupo
+      await queryClient.invalidateQueries({ queryKey: ['solicitudes', user?.id] })
+      if (updatedMatch?.estado === 'CONFIRMADO') {        
+        notify('¡Match confirmado! El cambio de grupo se realizó correctamente.', 'success') 
+        return
+      }
+      notify('Tu confirmación fue registrada. Ahora debes esperar al otro estudiante.', 'success')
+    } catch {
+      notify('No se pudo confirmar el match. Intenta nuevamente.', 'error')
+    }
+  }
 
   return (
     <Container maxWidth="lg">
@@ -26,6 +79,7 @@ const SolicitudesPage = () => {
         </Typography>
         { user && <SolicitudForm user={user} solicitudes={solicitudesEstudiante}/>}
       </Stack>
+      <Notification/>
 
       {isLoading && (
         <Stack alignItems="center" spacing={2} sx={{ py: 8 }}>
@@ -53,11 +107,23 @@ const SolicitudesPage = () => {
 
       {!isLoading && !isError && solicitudesEstudiante?.length > 0 && (
         <Grid container spacing={3} sx={{ pb: 5 }}>
-          {solicitudesEstudiante.sort((a, b) => b.id - a.id).map((solicitud) => (
-            <Grid key={solicitud.id} size={{ xs: 12, md: 6 }}>
-              <SolicitudCard solicitud={solicitud} />
-            </Grid>
-          ))}
+          {
+            [...solicitudesEstudiante].sort((a, b) => b.id - a.id).map((solicitud) =>
+            {
+              const match = matchSolicitudes.get(solicitud.id) ?? null
+              const isStudentA = match?.solicitudAId === solicitud.id
+              return (
+                <Grid key={solicitud.id} size={{ xs: 12, md: 6 }}>
+                  <SolicitudCard
+                    solicitud={solicitud}
+                    match={match}
+                    isStudentA={isStudentA}
+                    onConfirmMatch={handleConfirmMatch}
+                  />
+                </Grid>
+              )
+            })
+          }
         </Grid>
       )}
     </Container>
@@ -65,3 +131,34 @@ const SolicitudesPage = () => {
 }
 
 export default SolicitudesPage
+
+
+//Ejemplo de respuesta del endpoint de matches del estudiante
+//   {
+//     "matchId": 1,
+//     "solicitudAId": 4,
+//     "solicitudBId": 3,
+//     "estado": "CONFIRMADO",
+//     "codigoMateria": "22955",
+//     "confirmadoPorA": true,
+//     "confirmadoPorB": true,
+//     "nombreMateria": "Estruc. de datos y análisis de alg.",
+//     "nombreGrupoA": "E2",
+//     "nombreGrupoB": "E1",
+//     "nombreEstudianteA": null,
+//     "nombreEstudianteB": null
+//   },
+//   {
+//     "matchId": 2,
+//     "solicitudAId": 9,
+//     "solicitudBId": 8,
+//     "estado": "ACTIVO",
+//     "codigoMateria": "22960",
+//     "confirmadoPorA": false,
+//     "confirmadoPorB": false,
+//     "nombreMateria": "Base de Datos II",
+//     "nombreGrupoA": "G2",
+//     "nombreGrupoB": "G1",
+//     "nombreEstudianteA": null,
+//     "nombreEstudianteB": null
+//   }

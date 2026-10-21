@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitud Registrada Exitosamente | CourseSwap</title>
+</head>
+
+<body style="margin:0; padding:0; background-color:#f4f7f5;
+             font-family:Arial, Helvetica, sans-serif; color:#333333;">
+
+<table role="presentation" width="100%" cellspacing="0"
+       cellpadding="0" border="0" style="background-color:#f4f7f5;">
+    <tr>
+        <td align="center" style="padding:30px 12px;">
+
+            <table role="presentation" width="600" cellspacing="0"
+                   cellpadding="0" border="0"
+                   style="width:100%; max-width:600px; background:#ffffff;
+                          border-radius:12px; overflow:hidden;">
+
+                <!-- Encabezado CourseSwap -->
+                <tr>
+                    <td align="center"
+                        style="background-color:#16794b; padding:30px 20px;">
+
+                        <img
+                                src="https://drive.google.com/thumbnail?id=1F9Q0J_ClZS5vXjufWVgXviYj4DKt-Eha&sz=w500"
+                                alt="Logo de CourseSwap"
+                                width="72"
+                                style="display:block; width:72px; height:auto;
+                                   margin:0 auto 12px; border:0;">
+
+                        <h1 style="margin:0; color:#ffffff; font-size:28px;">
+                            CourseSwap
+                        </h1>
+
+                        <p style="margin:8px 0 0; color:#e0f5e8;
+                                  font-size:14px;">
+                            Conecta. Intercambia. Avanza.
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Contenido principal -->
+                <tr>
+                    <td style="padding:35px 30px 25px;">
+
+                        <h2 style="margin:0 0 20px; color:#202923;
+                                   font-size:23px; line-height:1.4;">
+                            ¡Solicitud registrada exitosamente! ✅
+                        </h2>
+
+                        <p style="font-size:16px; line-height:1.7;">
+                            Hola,
+                            <strong th:text="${nombre}">Estudiante</strong> 👋
+                        </p>
+
+                        <p style="font-size:15px; line-height:1.8;
+                                  color:#4b5563;">
+                            ¡Buenas noticias! Hemos publicado tu solicitud
+                            de cambio en nuestra bolsa de intercambio.
+                            Ahora tu solicitud está disponible para encontrar
+                            un compañero compatible.
+                        </p>
+
+                        <p style="font-size:15px; line-height:1.8;
+                                  color:#4b5563;">
+                            Te notificaremos tan pronto como encontremos
+                            una coincidencia que pueda ayudarte a conseguir
+                            el grupo que necesitas.
+                        </p>
+
+                        <!-- Detalles de la solicitud -->
+                        <table role="presentation" width="100%"
+                               cellspacing="0" cellpadding="0" border="0"
+                               style="background-color:#f0f8f3;
+                                      border-left:4px solid #198754;
+                                      margin:25px 0;">
+
+                            <tr>
+                                <td style="padding:18px 20px;">
+
+                                    <h3 style="margin:0 0 15px;
+                                               color:#16794b;
+                                               font-size:17px;">
+                                        📋 Resumen de tu solicitud
+                                    </h3>
+
+                                    <p style="margin:10px 0;
+                                              font-size:14px;
+                                              line-height:1.7;
+                                              color:#374151;">
+                                        <strong>📚 Materia:</strong>
+                                        <span th:text="${materia}">
+                                            Materia
+                                        </span>
+                                    </p>
+
+                                    <p style="margin:10px 0;
+                                              font-size:14px;
+                                              line-height:1.7;
+                                              color:#374151;">
+                                        <strong>📌 Tienes el grupo:</strong>
+                                        <span th:text="${grupoActual}">
+                                            A1
+                                        </span>
+                                    </p>
+
+                                    <p style="margin:10px 0 0;
+                                              font-size:14px;
+                                              line-height:1.7;
+                                              color:#374151;">
+                                        <strong>🎯 Buscas el grupo:</strong>
+                                        <span th:text="${grupoDeseado}">
+                                            B2
+                                        </span>
+                                    </p>
+
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Mensaje motivacional -->
+                        <table role="presentation" width="100%"
+                               cellspacing="0" cellpadding="0" border="0"
+                               style="margin:20px 0;">
+                            <tr>
+                                <td align="center" style="padding:10px 5px;">
+                                    <p style="margin:0; color:#4b5563;
+                                              font-size:14px; line-height:1.8;">
+                                        <strong>¡Tu próximo intercambio
+                                            podría estar más cerca de lo
+                                            que imaginas!</strong>
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Botón para acceder a CourseSwap -->
+                        <table role="presentation" cellspacing="0"
+                               cellpadding="0" border="0"
+                               align="center" style="margin:25px auto 20px;">
+                            <tr>
+                                <td align="center" bgcolor="#198754"
+                                    style="border-radius:8px;">
+                                    <a href="https://jonkkeyler333.github.io/CourseSwap/"
+                                       style="display:inline-block;
+                                              padding:15px 30px;
+                                              color:#ffffff;
+                                              font-size:15px;
+                                              font-weight:bold;
+                                              text-decoration:none;
+                                              border-radius:8px;">
+                                        🚀 Ir a CourseSwap
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <p style="font-size:14px; line-height:1.7;
+                                  color:#4b5563;">
+                            Gracias por confiar en nosotros para encontrar
+                            el intercambio que mejor se adapte a tu horario.
+                        </p>
+
+                        <p style="font-size:14px; line-height:1.7;
+                                  color:#4b5563;">
+                            El equipo de <strong>CourseSwap UIS</strong>
+                        </p>
+
+                    </td>
+                </tr>
+
+                <!-- Pie de página -->
+                <tr>
+                    <td align="center"
+                        style="background-color:#f8faf9;
+                               border-top:1px solid #e5e7eb;
+                               padding:22px 25px;">
+
+                        <p style="margin:0 0 8px; color:#66736a;
+                                  font-size:12px; line-height:1.6;">
+                            Este correo fue generado automáticamente.
+                            Por favor, no respondas a este mensaje.
+                        </p>
+
+                        <p style="margin:0; color:#89928c; font-size:12px;">
+                            © CourseSwap UIS
+                        </p>
+
+                    </td>
+                </tr>
+
+            </table>
+
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

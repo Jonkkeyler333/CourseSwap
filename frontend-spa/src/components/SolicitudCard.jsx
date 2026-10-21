@@ -1,4 +1,5 @@
 import {
+  Button,
   Card,
   CardContent,
   Chip,
@@ -11,6 +12,9 @@ import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined'
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty'
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutlineOutlined'
+import PersonSearchIcon from '@mui/icons-material/PersonSearch'
+import ThumbUpIcon from '@mui/icons-material/ThumbUp'
+import ThumbDownIcon from '@mui/icons-material/ThumbDown'
 
 const statusConfig = {
   PROPUESTA: {
@@ -35,14 +39,43 @@ const statusConfig = {
   },
 }
 
-const SolicitudCard = ({ solicitud, actions = null }) => {
+const statusActions = {
+  PROPUESTA: [
+    {
+      label: 'Editar solicitud',
+      color: 'primary',
+    },
+    {
+      label: 'Cancelar solicitud',
+      color: 'error',
+    }
+  ],
+  MATCHED: [
+    {
+      label: 'Confirmar Match',
+      color: 'success',
+    },
+    {
+      label: 'Rechazar Match',
+      color: 'error',
+    }
+  ]
+}
+
+const SolicitudCard = ({ solicitud, match = null, isStudentA, onConfirmMatch }) => {
   const status = statusConfig[solicitud.estado] || {
     label: solicitud.estado || 'Sin estado',
     color: 'default',
     icon: <HelpOutlineIcon fontSize="small" />,
   }
   const isConfirmed = solicitud.estado === 'CONFIRMADA'
+  const actions = statusActions[solicitud.estado] || []
+  const matchStatus = match ? match.estado : null
 
+  // if (match) {
+  //   console.log(`Solicitud ID ${solicitud.id} tiene un match con ID ${match.matchId}`)
+  //   console.log('Estado del match:', match.estado)
+  // }
   return (
     <Card variant="outlined" sx={{ height: '100%', borderRadius: 3 }}>
       <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
@@ -66,7 +99,7 @@ const SolicitudCard = ({ solicitud, actions = null }) => {
           </Stack>
 
           <div>
-            <Typography variant="h6" component="h3" fontWeight={700}>
+            <Typography variant="h6" component="h3">
               {solicitud.nombreMateria || 'Materia sin nombre'}
             </Typography>
             <Typography variant="body2" color="text.secondary">
@@ -98,8 +131,45 @@ const SolicitudCard = ({ solicitud, actions = null }) => {
               </Typography>
             </div>
           </Stack>
+          {
+            match && match.estado === 'ACTIVO' && (
+              <>
+                <Divider />
+                <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  Match ID #{match.matchId} <PersonSearchIcon/>
+                </Typography>
+                <Typography variant="body1">
+                  Estado del match: {matchStatus || 'No disponible'}
+                </Typography>
+                <Typography variant="body2">
+                  {isStudentA ? `Tu confirmación: ${match.confirmadoPorA ? 'Confirmado' : 'Pendiente'}` : `Tu confirmación: ${match.confirmadoPorB ? 'Confirmado' : 'Pendiente'}` }
+                </Typography>
+                <Typography variant="body2">
+                  {isStudentA ? `Confirmación de ${match.nombreEstudianteB} : ${match.confirmadoPorB ? 'Confirmado' : 'Pendiente'}` : `Confirmación de ${match.nombreEstudianteA} : ${match.confirmadoPorA ? 'Confirmado' : 'Pendiente'}` }
+                </Typography>
+              </>
+            )
+          }
+          <Divider />
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={{ xs: 1.5, sm: 3 }}
+          >
+            {actions.map(({ label, color }) => (
+              <Button
+                key={label}
+                variant="contained"
+                color={color}
+                fullWidth
+                onClick={label === 'Confirmar Match'
+                  ? () => onConfirmMatch?.(match.matchId, solicitud.id)
+                  : undefined}
+              >
+                {label} {label === 'Confirmar Match' && <ThumbUpIcon sx={{ ml: 1 }} />} {label === 'Rechazar Match' && <ThumbDownIcon sx={{ ml: 1 }} />}
+              </Button>
+            ))}
+          </Stack>
 
-          {actions}
         </Stack>
       </CardContent>
     </Card>

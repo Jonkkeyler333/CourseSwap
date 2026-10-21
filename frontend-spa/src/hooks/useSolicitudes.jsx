@@ -4,7 +4,7 @@ import { useActions } from '../store/notifyStore'
 
 export const useSolicitudes = (studentId) => {
   const queryClient = useQueryClient()
-  const { setMessage, setType } = useActions()
+  const { notify } = useActions()
   const result = useQuery({
     queryKey: ['solicitudes', studentId],
     queryFn: () => solicitudesService.getStudentSolicitudes(studentId),
@@ -18,9 +18,7 @@ export const useSolicitudes = (studentId) => {
       queryClient.invalidateQueries({ queryKey: ['solicitudes', studentId] })
     },
     onError: (error) => {
-      setMessage(`No se pudo crear la solicitud: ${error.response?.data?.message}`)
-      setType('error')
-      console.error(error)
+      notify(`No se pudo crear la solicitud: ${error.response?.data?.message}`, 'error')
     }
   })
 

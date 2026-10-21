@@ -6,7 +6,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   FormControl,
   InputLabel,
@@ -136,11 +135,9 @@ const SolicitudForm = ({ user, solicitudes }) => {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Nueva solicitud de cambio</DialogTitle>
         <DialogContent sx={{ minWidth: { sm: 520 } }}>
-          <DialogContentText>
-            <Typography variant="body2" color="text.secondary">
-              Ingresa los datos para crear una nueva solicitud de cambio de grupo
-            </Typography>
-          </DialogContentText>
+          <Typography variant="body2" color="text.secondary">
+            Ingresa los datos para crear una nueva solicitud de cambio de grupo
+          </Typography>
           <form onSubmit={handleSubmit} id="new-solicitud-form">
             <Stack spacing={2} sx={{ mt: 3 }}>
               {message && <Alert severity={messageType}>{message}</Alert>}
@@ -149,7 +146,7 @@ const SolicitudForm = ({ user, solicitudes }) => {
                 value={codigo}
                 onChange={(event) => setCodigo(event.target.value)}
                 required
-                inputProps={{ maxLength: 7 }}
+                slotProps={{ htmlInput: { maxLength: 7 } }}
               />
               {isLoadingMatricula ? (
                 <CircularProgress size={24} />

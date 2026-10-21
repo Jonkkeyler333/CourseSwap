@@ -1,14 +1,16 @@
 import { create } from 'zustand'
 
-const useNotifyStore = create((set) => ({
+export const useNotifyStore = create((set) => ({
   message: '',
-  type: '',
+  type: 'info',
+  open: false,
   actions: {
-    setMessage: (message) => set(() => ({ message })),
-    setType: (type) => set(() => ({ type }))
-  }
+    notify: (message, type = 'info') => set({ message, type, open: true }),
+    clear: () => set((state) => ({ ...state, open: false })),
+  },
 }))
 
-export const useMessage = () => useNotifyStore( state => state.message )
-export const useType = () => useNotifyStore( state => state.type )
-export const useActions = () => useNotifyStore( state => state.actions )
+export const useMessage = () => useNotifyStore( state => state.message)
+export const useType = () => useNotifyStore((state) => state.type)
+export const useOpen = () => useNotifyStore((state) => state.open)
+export const useActions = () => useNotifyStore((state) => state.actions)
