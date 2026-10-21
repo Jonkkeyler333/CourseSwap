@@ -12,7 +12,7 @@ import { useQueryClient } from '@tanstack/react-query'
 
 const SolicitudesPage = () => {
   const { user } = useAuth()
-  const { solicitudesEstudiante, isLoading, isError } = useSolicitudes(user?.id)
+  const { solicitudesEstudiante, isLoading, isError, deleteSolicitud } = useSolicitudes(user?.id)
   const { matches: matchesEstudiante, confirmMatch } = useMatch()
   const { notify } = useActions()
   const queryClient = useQueryClient()
@@ -31,23 +31,17 @@ const SolicitudesPage = () => {
     const match = matchesEstudiante.find(
       ({ matchId: currentMatchId }) => String(currentMatchId) === String(matchId),
     )
-
     if (!match) {
       notify('No se encontró el match que intentas confirmar.', 'error')
       return
     }
-
-    const isEstudianteA =
-      String(match.solicitudAId) === String(solicitudId)
-    const confirmationField = isEstudianteA
-      ? 'confirmadoPorA'
-      : 'confirmadoPorB'
+    const isEstudianteA = String(match.solicitudAId) === String(solicitudId)
+    const confirmationField = isEstudianteA ? 'confirmadoPorA' : 'confirmadoPorB'
 
     if (match[confirmationField]) {
       notify('Ya has confirmado este match. Espera al otro estudiante.', 'info')
       return
     }
-
     try {
       const updatedMatch = await confirmMatch(match.matchId)
       // se cual sea el que confirmo, se debe forzar el refresh de las solicitudes para reflejar el cambio de grupo
@@ -59,6 +53,18 @@ const SolicitudesPage = () => {
       notify('Tu confirmación fue registrada. Ahora debes esperar al otro estudiante.', 'success')
     } catch {
       notify('No se pudo confirmar el match. Intenta nuevamente.', 'error')
+    }
+  }
+
+  const handleCancelSolicitud = async (solicitudId) => {
+    try {
+      const confirm = window.confirm('¿Estás seguro de que deseas cancelar esta solicitud? Esta acción no se puede deshacer.')
+      if (!confirm) return
+      await deleteSolicitud(solicitudId)
+      notify('Se ha cancelado correctamente tu solicitud', 'success')
+    } catch (error) {
+      notify('Ha ocurrido un error al cancelar la solicitud, intentalo otra vez', 'error')
+      console.error(error)
     }
   }
 
@@ -118,7 +124,10 @@ const SolicitudesPage = () => {
                     solicitud={solicitud}
                     match={match}
                     isStudentA={isStudentA}
-                    onConfirmMatch={handleConfirmMatch}
+                    actions={{
+                      onConfirmMatch: handleConfirmMatch,
+                      onCancelSolicitud: handleCancelSolicitud
+                    }}
                   />
                 </Grid>
               )

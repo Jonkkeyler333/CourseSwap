@@ -14,7 +14,11 @@ import SwapHorizIcon from '@mui/icons-material/SwapHoriz'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutlineOutlined'
 import PersonSearchIcon from '@mui/icons-material/PersonSearch'
 import ThumbUpIcon from '@mui/icons-material/ThumbUp'
-import ThumbDownIcon from '@mui/icons-material/ThumbDown'
+// import ThumbDownIcon from '@mui/icons-material/ThumbDown'
+// import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel'
+import EditSolicitudForm from './EditSolicitudForm'
+import { useAuth } from '../hooks/useAuth'
 
 const statusConfig = {
   PROPUESTA: {
@@ -39,38 +43,56 @@ const statusConfig = {
   },
 }
 
-const statusActions = {
-  PROPUESTA: [
-    {
-      label: 'Editar solicitud',
-      color: 'primary',
-    },
-    {
-      label: 'Cancelar solicitud',
-      color: 'error',
-    }
-  ],
-  MATCHED: [
-    {
-      label: 'Confirmar Match',
-      color: 'success',
-    },
-    {
-      label: 'Rechazar Match',
-      color: 'error',
-    }
-  ]
-}
 
-const SolicitudCard = ({ solicitud, match = null, isStudentA, onConfirmMatch }) => {
+const SolicitudCard = ({ solicitud, match = null, isStudentA, actions: { onConfirmMatch, onCancelSolicitud } }) => {
+  const { user, isLoading } = useAuth()
   const status = statusConfig[solicitud.estado] || {
     label: solicitud.estado || 'Sin estado',
     color: 'default',
     icon: <HelpOutlineIcon fontSize="small" />,
   }
   const isConfirmed = solicitud.estado === 'CONFIRMADA'
-  const actions = statusActions[solicitud.estado] || []
+  const actionHandlers = {
+    confirmMatch: () => onConfirmMatch?.(match.matchId, solicitud.id),
+    cancelSolicitud: () => onCancelSolicitud?.(solicitud.id),
+  }
+  const actionsByStatus = {
+    PROPUESTA: [
+      {
+        id: 'cancel-solicitud',
+        label: 'Cancelar',
+        color: 'error',
+        onClick: actionHandlers.cancelSolicitud,
+        icon: <CancelIcon sx={{ ml: 1 }} />,
+      },
+      {
+        id: 'edit-solicitud',
+      }
+    ],
+    MATCHED: [
+      {
+        id: 'confirm-match',
+        label: 'Confirmar',
+        color: 'success',
+        icon: <ThumbUpIcon sx={{ ml: 1 }} />,
+        onClick: actionHandlers.confirmMatch,
+      },
+    ]
+  }
+  const actionsToRender = actionsByStatus[solicitud.estado] || []
   const matchStatus = match ? match.estado : null
+
+  if (isLoading) {
+    return (
+      <Card variant="outlined" sx={{ height: '100%', borderRadius: 3 }}>
+        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+          <Typography variant="body2" color="text.secondary">
+            Cargando información de la solicitud...
+          </Typography>
+        </CardContent>
+      </Card>
+    )
+  }
 
   // if (match) {
   //   console.log(`Solicitud ID ${solicitud.id} tiene un match con ID ${match.matchId}`)
@@ -155,19 +177,25 @@ const SolicitudCard = ({ solicitud, match = null, isStudentA, onConfirmMatch }) 
             direction={{ xs: 'column', sm: 'row' }}
             spacing={{ xs: 1.5, sm: 3 }}
           >
-            {actions.map(({ label, color }) => (
-              <Button
-                key={label}
-                variant="contained"
-                color={color}
-                fullWidth
-                onClick={label === 'Confirmar Match'
-                  ? () => onConfirmMatch?.(match.matchId, solicitud.id)
-                  : undefined}
-              >
-                {label} {label === 'Confirmar Match' && <ThumbUpIcon sx={{ ml: 1 }} />} {label === 'Rechazar Match' && <ThumbDownIcon sx={{ ml: 1 }} />}
-              </Button>
-            ))}
+            {actionsToRender.map(({ id, label, color, icon, onClick }) => {
+              if (id === 'edit-solicitud') {
+                return (
+                  <EditSolicitudForm key={id} user={user} solicitud={solicitud} />
+                )
+              }
+              return (
+                <Button
+                  key={id}
+                  variant="contained"
+                  color={color}
+                  onClick={onClick}
+                >
+                  {label}
+                  {icon}
+                </Button>
+              )
+            }
+            )}
           </Stack>
 
         </Stack>

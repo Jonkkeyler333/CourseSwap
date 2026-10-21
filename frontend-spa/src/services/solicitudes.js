@@ -32,8 +32,16 @@ const updateSolicitud = async (solicitudId, nuevoGrupoId) => {
   return response.data
 }
 
+const deleteSolicitud = async (solicitudId) => {
+  if (!solicitudId) {
+    throw new Error('Solicitud ID es obligatorio para eliminar una solicitud.')
+  }
+  await api.delete(`/solicitudes/${solicitudId}`)
+}
+
 export default {
   getStudentSolicitudes,
   updateSolicitud,
   createSolicitud,
+  deleteSolicitud,
 }

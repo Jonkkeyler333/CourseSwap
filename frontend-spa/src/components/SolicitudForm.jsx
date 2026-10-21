@@ -148,6 +148,11 @@ const SolicitudForm = ({ user, solicitudes }) => {
                 required
                 slotProps={{ htmlInput: { maxLength: 7 } }}
               />
+              { availableMatriculas.length === 0 && (
+                <Alert severity="info">
+                  No hay materias disponibles para crear una nueva solicitud.
+                </Alert>
+              )}
               {isLoadingMatricula ? (
                 <CircularProgress size={24} />
               ) : !matriculaEstudiante ? (

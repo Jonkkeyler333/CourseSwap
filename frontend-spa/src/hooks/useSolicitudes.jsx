@@ -22,10 +22,32 @@ export const useSolicitudes = (studentId) => {
     }
   })
 
+  const deleteSolicitudMutation = useMutation({
+    mutationFn: solicitudesService.deleteSolicitud,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['solicitudes', studentId] })
+    },
+    onError: (error) => {
+      notify(`No se pudo eliminar la solicitud: ${error.response?.data?.message}`, 'error')
+    }
+  })
+
+  const updateSolicitudMutation = useMutation({
+    mutationFn: ({ solicitudId, nuevoGrupoId }) => solicitudesService.updateSolicitud(solicitudId, nuevoGrupoId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['solicitudes', studentId] })
+    },
+    onError: (error) => {
+      notify(`No se pudo actualizar la solicitud: ${error.response?.data?.message}`, 'error')
+    }
+  })
+
   return {
     solicitudesEstudiante: result.data,
     isLoading: result.isPending,
     isError: result.isError,
     addSolicitud: async (solicitudData) => createSolicitudMutation.mutateAsync(solicitudData),
+    deleteSolicitud: async (solicitudId) => deleteSolicitudMutation.mutateAsync(solicitudId),
+    updateSolicitud: async (solicitudId, nuevoGrupoId) => updateSolicitudMutation.mutateAsync({ solicitudId, nuevoGrupoId }),
   }
 }
