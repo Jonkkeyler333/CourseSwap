@@ -1,23 +1,9 @@
 import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
-import {
-  AppBar,
-  Container,
-  Toolbar,
-  Typography,
-  Button,
-  Box,
-  IconButton,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  useMediaQuery,
-} from '@mui/material'
+import { AppBar,  Container, Toolbar, Typography, Button, Box, IconButton, Drawer, List, ListItem, ListItemButton, ListItemText, useMediaQuery, } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import MenuIcon from '@mui/icons-material/Menu'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import logo from '../assets/CourseSwap_transparent.png'
 
 const navLinks = [
@@ -30,6 +16,7 @@ const navLinks = [
 const MainLayout = ({ user }) => {
   const { logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -42,7 +29,16 @@ const MainLayout = ({ user }) => {
 
   return (
     <>
-      <AppBar position="static" elevation={1}>
+      <AppBar
+        position="sticky"
+        elevation={0}
+        sx={{
+          borderBottom: 1,
+          borderColor: 'primary.dark',
+          bgcolor: 'primary.main',
+          color: 'primary.contrastText',
+        }}
+      >
         <Container maxWidth="lg" disableGutters={false}>
           <Toolbar>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexGrow: 1 }}>
@@ -59,7 +55,23 @@ const MainLayout = ({ user }) => {
             ) : (
               <>
                 {navLinks.map((link) => (
-                  <Button key={link.to} color="inherit" component={Link} to={link.to} sx={{ ml: 2 }}>
+                  <Button
+                    key={link.to}
+                    color="inherit"
+                    component={NavLink}
+                    to={link.to}
+                    sx={{
+                      ml: 1,
+                      px: 1.5,
+                      borderRadius: 2,
+                      color: 'inherit',
+                      '&.active': {
+                        color: 'common.white',
+                        bgcolor: 'rgba(255, 255, 255, 0.16)',
+                        fontWeight: 700,
+                      },
+                    }}
+                  >
                     {link.label}
                   </Button>
                 ))}
@@ -68,7 +80,20 @@ const MainLayout = ({ user }) => {
                   {user ? `Bienvenido, ${user.nombre}` : 'No has iniciado sesión'}
                 </Typography>
 
-                <Button color="inherit" onClick={handleLogout}>
+                <Button
+                  color="inherit"
+                  variant="outlined"
+                  onClick={handleLogout}
+                  sx={{
+                    ml: 1,
+                    borderRadius: 2,
+                    borderColor: 'rgba(255, 255, 255, 0.55)',
+                    '&:hover': {
+                      borderColor: 'common.white',
+                      bgcolor: 'rgba(255, 255, 255, 0.1)',
+                    },
+                  }}
+                >
                   Salir
                 </Button>
               </>
@@ -85,7 +110,20 @@ const MainLayout = ({ user }) => {
           <List>
             {navLinks.map((link) => (
               <ListItem key={link.to} disablePadding>
-                <ListItemButton component={Link} to={link.to} onClick={() => setDrawerOpen(false)}>
+                <ListItemButton
+                  component={NavLink}
+                  to={link.to}
+                  onClick={() => setDrawerOpen(false)}
+                  selected={location.pathname === link.to}
+                  sx={{
+                    borderRadius: 2,
+                    mx: 1,
+                    '&.Mui-selected': {
+                      color: 'primary.main',
+                      bgcolor: 'action.selected',
+                    },
+                  }}
+                >
                   <ListItemText primary={link.label} />
                 </ListItemButton>
               </ListItem>
