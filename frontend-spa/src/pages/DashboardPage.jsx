@@ -1,11 +1,24 @@
-import { Container, Paper, Typography } from '@mui/material'
+import { Container, Paper, Typography, CircularProgress } from '@mui/material'
 import { useAuth } from '../hooks/useAuth'
+import { useMatch } from '../hooks/useMatch'
+import Notification from '../components/Notification'
+import ErrorIcon from '@mui/icons-material/Error'
+import MatchCard from '../components/MatchCard'
 
 const DashboardPage = () => {
-  const { user, isLoading} = useAuth()
+  const { user, isLoading, isError } = useAuth()
+  const { matches, isLoading: isMatchesLoading } = useMatch()
 
   if (isLoading) {
     return <div>Cargando...</div>
+  }
+
+  if (isError) {
+    return (
+      <Typography variant="body1" color="error">
+        <ErrorIcon /> Error al cargar la información del usuario. Refresca la página 
+      </Typography>
+    )
   }
 
   return (
@@ -25,6 +38,23 @@ const DashboardPage = () => {
         </Typography>
                 
       </Paper>
+
+      {!isMatchesLoading && matches.length === 0 ? (
+        <Typography variant="body1" sx={{ mt: 2 }}>
+          No tienes matches disponibles.
+        </Typography>
+      ) : null}
+
+      { isMatchesLoading && matches.length > 0 ? (
+        <Typography variant="body1" sx={{ mt: 2 }}>
+          <CircularProgress size={20} /> Cargando tus matches...
+        </Typography>
+      ) : (
+        matches.filter((match) => match.estado === 'ACTIVO').map(( match ) => 
+          <MatchCard key={match.matchId} match={match} user={user} />
+        )
+      )}
+      <Notification />
     </Container>
   )
 

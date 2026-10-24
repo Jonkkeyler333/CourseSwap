@@ -39,13 +39,7 @@ const SolicitudForm = ({ user, solicitudes }) => {
     ),
     [solicitudes],
   )
-
-  // const availableMatriculas = useMemo(
-  //   () => (matriculaEstudiante || []).filter(
-  //     ({ materiaCodigo }) => !activeSubjectCodes.has(String(materiaCodigo)),
-  //   ),
-  //   [activeSubjectCodes, matriculaEstudiante],
-  // )
+  
   const availableMatriculas = useMemo( () => {
     const rawData = matriculaEstudiante || []
     const data = Array.isArray(rawData) ? rawData : []
