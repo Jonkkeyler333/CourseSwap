@@ -8,6 +8,19 @@ const getStudentSolicitudes = async (studentId) => {
   return response.data
 }
 
+const getSolicitudesCompatibles = async () => {
+  const response = await api.get('/solicitudes/buscar')
+  return response.data || []
+}
+
+const aceptarMatchManual = async (solicitudId) => {
+  if (!solicitudId) {
+    throw new Error('No se pudo identificar la solicitud que quieres aceptar.')
+  }
+  const response = await api.post(`/solicitudes/${solicitudId}/match-manual`)
+  return response.data
+}
+
 const createSolicitud = async (solicitudData) => {
   if (
     !solicitudData?.codigo || !solicitudData?.grupoActualId || !solicitudData?.grupoNuevoId || !solicitudData?.materiaId
@@ -41,6 +54,8 @@ const deleteSolicitud = async (solicitudId) => {
 
 export default {
   getStudentSolicitudes,
+  getSolicitudesCompatibles,
+  aceptarMatchManual,
   updateSolicitud,
   createSolicitud,
   deleteSolicitud,

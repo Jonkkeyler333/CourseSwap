@@ -13,7 +13,7 @@ import { useQueryClient } from '@tanstack/react-query'
 const SolicitudesPage = () => {
   const { user } = useAuth()
   const { solicitudesEstudiante, isLoading, isError, deleteSolicitud } = useSolicitudes(user?.id)
-  const { matches: matchesEstudiante, confirmMatch } = useMatch()
+  const { matches: matchesEstudiante, confirmMatch, cancelMatch } = useMatch()
   const { notify } = useActions()
   const queryClient = useQueryClient()
 
@@ -65,6 +65,21 @@ const SolicitudesPage = () => {
     } catch (error) {
       notify('Ha ocurrido un error al cancelar la solicitud, intentalo otra vez', 'error')
       console.error(error)
+    }
+  }
+
+  const handleRejectMatch = async (matchId) => {
+    const confirm = window.confirm('¿Rechazar este match? El match y las dos solicitudes quedarán cancelados.')
+    if (!confirm) return
+    try {
+      await cancelMatch(matchId)
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['match'] }),
+        queryClient.invalidateQueries({ queryKey: ['solicitudes', user?.id] }),
+      ])
+      notify('Has rechazado el match. Ambas solicitudes quedaron canceladas.', 'success')
+    } catch (error) {
+      notify(error.response?.data?.message || 'No se pudo rechazar el match. Intenta nuevamente.', 'error')
     }
   }
 
@@ -126,7 +141,8 @@ const SolicitudesPage = () => {
                     isStudentA={isStudentA}
                     actions={{
                       onConfirmMatch: handleConfirmMatch,
-                      onCancelSolicitud: handleCancelSolicitud
+                      onCancelSolicitud: handleCancelSolicitud,
+                      onRejectMatch: handleRejectMatch,
                     }}
                   />
                 </Grid>
