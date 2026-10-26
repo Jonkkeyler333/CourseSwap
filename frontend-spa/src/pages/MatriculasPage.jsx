@@ -274,10 +274,11 @@ const MatriculasPage = () => {
                     <TableCell>{enrollment.grupoNombre || '--'}</TableCell>
                     <TableCell>{enrollment.grupoProfesor || '--'}</TableCell>
                     <TableCell>
-                      <Button size="small" onClick={() => openEditDialog(enrollment)}>Editar</Button>
+                      <Button size="small" variant="contained" onClick={() => openEditDialog(enrollment)} sx={{ mr: 1 }}>Editar</Button>
                       <Button
                         size="small"
                         color="error"
+                        variant="contained"
                         onClick={() => {
                           setDeleteError('')
                           if (window.confirm('¿Deseas eliminar esta matrícula?')) deleteMutation.mutate(enrollment.id)
