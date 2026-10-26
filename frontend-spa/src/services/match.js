@@ -20,7 +20,16 @@ const confirmMatch = async (matchId) => {
   return response.data
 }
 
+const cancelMatch = async (matchId) => {
+  if (!matchId || isNaN(Number(matchId))) {
+    throw new Error('No se pudo identificar el match que quieres rechazar.')
+  }
+  const response = await api.post(`/match/${matchId}/cancel`)
+  return response.data
+}
+
 export default {
   getStudentMatches,
   confirmMatch,
+  cancelMatch,
 }

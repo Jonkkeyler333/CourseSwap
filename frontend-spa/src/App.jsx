@@ -7,6 +7,7 @@ import MainLayout from './components/MainLayout'
 import NotFoundPage from './pages/NotFoundPage'
 import DashboardPage from './pages/DashboardPage'
 import SolicitudesPage from './pages/SolicitudesPage'
+import BuscarSolicitudesPage from './pages/BuscarSolicitudesPage'
 
 
 const RootRoute = () => {
@@ -42,7 +43,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'buscar',
-        element: <h1>Buscar intercambios</h1>
+        element: <BuscarSolicitudesPage />
       }
     ]
   },

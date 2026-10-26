@@ -44,7 +44,7 @@ const statusConfig = {
 }
 
 
-const SolicitudCard = ({ solicitud, match = null, isStudentA, actions: { onConfirmMatch, onCancelSolicitud } }) => {
+const SolicitudCard = ({ solicitud, match = null, isStudentA, actions: { onConfirmMatch, onCancelSolicitud, onRejectMatch } }) => {
   const { user, isLoading } = useAuth()
   const status = statusConfig[solicitud.estado] || {
     label: solicitud.estado || 'Sin estado',
@@ -55,6 +55,7 @@ const SolicitudCard = ({ solicitud, match = null, isStudentA, actions: { onConfi
   const actionHandlers = {
     confirmMatch: () => onConfirmMatch?.(match.matchId, solicitud.id),
     cancelSolicitud: () => onCancelSolicitud?.(solicitud.id),
+    rejectMatch: () => onRejectMatch?.(match.matchId),
   }
   const actionsByStatus = {
     PROPUESTA: [
@@ -69,7 +70,7 @@ const SolicitudCard = ({ solicitud, match = null, isStudentA, actions: { onConfi
         id: 'edit-solicitud',
       }
     ],
-    MATCHED: [
+    MATCHED: match?.estado === 'ACTIVO' ? [
       {
         id: 'confirm-match',
         label: 'Confirmar',
@@ -77,7 +78,14 @@ const SolicitudCard = ({ solicitud, match = null, isStudentA, actions: { onConfi
         icon: <ThumbUpIcon sx={{ ml: 1 }} />,
         onClick: actionHandlers.confirmMatch,
       },
-    ]
+      {
+        id: 'reject-match',
+        label: 'Rechazar match',
+        color: 'error',
+        icon: <CancelOutlinedIcon sx={{ ml: 1 }} />,
+        onClick: actionHandlers.rejectMatch,
+      },
+    ] : [],
   }
   const actionsToRender = actionsByStatus[solicitud.estado] || []
   const matchStatus = match ? match.estado : null
@@ -186,7 +194,7 @@ const SolicitudCard = ({ solicitud, match = null, isStudentA, actions: { onConfi
               return (
                 <Button
                   key={id}
-                  variant="contained"
+                  variant={id === 'reject-match' ? 'outlined' : 'contained'}
                   color={color}
                   onClick={onClick}
                 >

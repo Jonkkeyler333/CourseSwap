@@ -1,13 +1,13 @@
 import { useMatch } from '../hooks/useMatch'
 import { Card } from '@mui/material'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
-import { Button, Typography } from '@mui/material'
+import { Button, Stack, Typography } from '@mui/material'
 import { useActions } from '../store/notifyStore'
 import RecommendIcon from '@mui/icons-material/Recommend'
 
 // componente para mostrar tarjetas de matches en el dashboard general
 const MatchCard = ({ match, user }) => {
-  const { confirmMatch } = useMatch()
+  const { confirmMatch, cancelMatch } = useMatch()
   console.log('MatchCard - match:', match)
   console.log('MatchCard - user:', user)
   const isEstudianteA = String(match.nombreEstudianteA) === String(user?.nombre + ' ' + user?.apellido)
@@ -27,6 +27,18 @@ const MatchCard = ({ match, user }) => {
       console.error('Error al confirmar el match:', error)
     }
   }
+
+  const handleRejectMatch = async () => {
+    if (!window.confirm('¿Rechazar este match? El match y las dos solicitudes quedarán cancelados.')) return
+    try {
+      await cancelMatch(match.matchId)
+      notify('Has rechazado el match. Ambas solicitudes quedaron canceladas.', 'success')
+    } catch (error) {
+      console.error('Error al rechazar el match:', error)
+    }
+  }
+
+  const currentStudentConfirmed = isEstudianteA ? match.confirmadoPorA : match.confirmadoPorB
 
   return (
     <Card>
@@ -53,9 +65,24 @@ const MatchCard = ({ match, user }) => {
         Estado del match: {match.estado}
       </Typography>
 
-      <Button variant="contained" color="success" onClick={handleConfirmMatch}>
-        <RecommendIcon /> Confirmar Match
-      </Button>        
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 2 }}>
+        <Button
+          variant="contained"
+          color="success"
+          onClick={handleConfirmMatch}
+          disabled={currentStudentConfirmed || match.estado !== 'ACTIVO'}
+        >
+          <RecommendIcon /> {currentStudentConfirmed ? 'Confirmación enviada' : 'Confirmar match'}
+        </Button>
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={handleRejectMatch}
+          disabled={match.estado !== 'ACTIVO'}
+        >
+          Rechazar match
+        </Button>
+      </Stack>
     </Card>
   )
 
