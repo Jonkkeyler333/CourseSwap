@@ -28,18 +28,7 @@ import { useMatricula } from '../hooks/useMatricula'
 import materiasService from '../services/materias'
 import matriculaService from '../services/matricula'
 import ScheduleTable from '../components/ScheduleTable'
-
-const DAY_INDEX = {
-  lunes: 0,
-  martes: 1,
-  miércoles: 2,
-  miercoles: 2,
-  jueves: 3,
-  viernes: 4,
-  sábado: 5,
-  sabado: 5,
-  domingo: 6,
-}
+import { DAY_INDEX } from '../constants/constants'
 
 const asList = (value) => {
   if (Array.isArray(value)) return value

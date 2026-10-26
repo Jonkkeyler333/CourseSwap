@@ -1,8 +1,5 @@
 import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
-
-const START_HOUR = 6
-const END_HOUR = 22
-const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+import { DAYS, END_HOUR, START_HOUR } from '../constants/constants'
 
 const formatTime = (hour) => `${String(hour).padStart(2, '0')}:00`
 
