@@ -167,7 +167,10 @@ const MatriculasPage = () => {
         for (let hour = startHour; hour < lastHour; hour += 1) {
           const key = `${hour}-${getDayIndex(schedule)}`
           const courses = cells.get(key) || []
-          courses.push(enrollment)
+          courses.push({
+            enrollment,
+            colorIndex: schedulesByEnrollment.indexOf(enrollment),
+          })
           cells.set(key, courses)
         }
       })

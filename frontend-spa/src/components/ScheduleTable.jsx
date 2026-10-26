@@ -1,5 +1,5 @@
 import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
-import { DAYS, END_HOUR, START_HOUR } from '../constants/constants'
+import { COURSE_COLORS, DAYS, END_HOUR, START_HOUR } from '../constants/constants'
 
 const formatTime = (hour) => `${String(hour).padStart(2, '0')}:00`
 
@@ -95,34 +95,35 @@ const ScheduleTable = ({ calendar }) => (
                     '&:hover': { bgcolor: 'action.selected' },
                   }}
                 >
-                  {courses.map((course) => (
-                    <Box
-                      key={`${course.id}-${hour}`}
-                      sx={{
-                        border: 1,
-                        borderLeft: 3,
-                        borderColor: 'primary.main',
-                        bgcolor: (theme) => theme.palette.mode === 'dark'
-                          ? 'rgba(56, 189, 248, 0.14)'
-                          : 'rgba(25, 118, 210, 0.08)',
-                        color: 'primary.main',
-                        borderRadius: 1,
-                        px: 0.75,
-                        py: 0.25,
-                        minHeight: 30,
-                        height: 'calc(100% - 4px)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        mb: 0.25,
-                        fontSize: '0.68rem',
-                        fontWeight: 700,
-                        lineHeight: 1.15,
-                        boxShadow: '0 1px 4px rgba(15, 23, 42, 0.08)',
-                      }}
-                    >
-                      {course.materiaNombre || course.materiaCodigo || 'Materia'} · {course.grupoNombre || 'Grupo'}
-                    </Box>
-                  ))}
+                  {courses.map(({ enrollment, colorIndex }) => {
+                    const colors = COURSE_COLORS[colorIndex % COURSE_COLORS.length]
+                    return (
+                      <Box
+                        key={`${enrollment.id}-${hour}`}
+                        sx={{
+                          border: 1,
+                          borderLeft: 3,
+                          borderColor: colors.accent,
+                          bgcolor: (theme) => theme.palette.mode === 'dark' ? colors.dark : colors.light,
+                          color: (theme) => theme.palette.mode === 'dark' ? '#f8fafc' : '#172033',
+                          borderRadius: 1,
+                          px: 0.75,
+                          py: 0.25,
+                          minHeight: 30,
+                          height: 'calc(100% - 4px)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          mb: 0.25,
+                          fontSize: '0.68rem',
+                          fontWeight: 700,
+                          lineHeight: 1.15,
+                          boxShadow: '0 1px 4px rgba(15, 23, 42, 0.08)',
+                        }}
+                      >
+                        {enrollment.materiaNombre || enrollment.materiaCodigo || 'Materia'} · {enrollment.grupoNombre || 'Grupo'}
+                      </Box>
+                    )
+                  })}
                 </TableCell>
               )
             })}
