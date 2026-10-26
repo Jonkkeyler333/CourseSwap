@@ -10,6 +10,23 @@ const getMatricula = async (studentId) => {
   return response.data
 }
 
+const createMatricula = async (matriculaData) => {
+  const response = await api.post('/matriculas/', matriculaData)
+  return response.data
+}
+
+const updateMatricula = async (matriculaId, matriculaData) => {
+  const response = await api.patch(`/matriculas/${matriculaId}`, matriculaData)
+  return response.data
+}
+
+const deleteMatricula = async (matriculaId) => {
+  await api.delete(`/matriculas/${matriculaId}`)
+}
+
 export default {
   getMatricula,
+  createMatricula,
+  updateMatricula,
+  deleteMatricula,
 }

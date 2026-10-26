@@ -8,6 +8,7 @@ import NotFoundPage from './pages/NotFoundPage'
 import DashboardPage from './pages/DashboardPage'
 import SolicitudesPage from './pages/SolicitudesPage'
 import BuscarSolicitudesPage from './pages/BuscarSolicitudesPage'
+import MatriculasPage from './pages/MatriculasPage'
 
 
 const RootRoute = () => {
@@ -39,7 +40,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'horario',
-        element: <h1>Ajustar matrícula</h1>
+        element: <MatriculasPage />
       },
       {
         path: 'buscar',
