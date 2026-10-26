@@ -6,7 +6,7 @@ const formatTime = (hour) => `${String(hour).padStart(2, '0')}:00`
 const ScheduleTable = ({ calendar }) => (
   <TableContainer
     sx={{
-      maxHeight: 680,
+      maxHeight: 590,
       border: 1,
       borderColor: 'divider',
       borderRadius: 3,
@@ -32,6 +32,8 @@ const ScheduleTable = ({ calendar }) => (
               fontWeight: 800,
               color: 'text.secondary',
               bgcolor: 'background.paper',
+              py: 0.75,
+              px: 1,
               borderRight: 1,
               borderColor: 'divider',
             }}
@@ -44,7 +46,7 @@ const ScheduleTable = ({ calendar }) => (
               align="center"
               sx={{
                 minWidth: 115,
-                py: 1.5,
+                py: 0.75,
                 fontWeight: 800,
                 bgcolor: 'background.paper',
                 color: index === 0 ? 'primary.main' : 'text.primary',
@@ -72,6 +74,8 @@ const ScheduleTable = ({ calendar }) => (
                 fontWeight: 800,
                 whiteSpace: 'nowrap',
                 bgcolor: 'action.hover',
+                py: 0.35,
+                px: 1,
                 borderRight: 1,
                 borderColor: 'divider',
               }}
@@ -84,8 +88,8 @@ const ScheduleTable = ({ calendar }) => (
                 <TableCell
                   key={day}
                   sx={{
-                    height: 56,
-                    p: 0.75,
+                    height: 36,
+                    p: 0.5,
                     verticalAlign: 'top',
                     transition: 'background-color 160ms ease',
                     '&:hover': { bgcolor: 'action.selected' },
@@ -96,20 +100,24 @@ const ScheduleTable = ({ calendar }) => (
                       key={`${course.id}-${hour}`}
                       sx={{
                         border: 1,
-                        borderLeft: 4,
+                        borderLeft: 3,
                         borderColor: 'primary.main',
                         bgcolor: (theme) => theme.palette.mode === 'dark'
                           ? 'rgba(56, 189, 248, 0.14)'
                           : 'rgba(25, 118, 210, 0.08)',
                         color: 'primary.main',
-                        borderRadius: 1.5,
-                        px: 1.25,
-                        py: 0.75,
-                        mb: 0.5,
-                        fontSize: '0.75rem',
+                        borderRadius: 1,
+                        px: 0.75,
+                        py: 0.25,
+                        minHeight: 30,
+                        height: 'calc(100% - 4px)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        mb: 0.25,
+                        fontSize: '0.68rem',
                         fontWeight: 700,
-                        lineHeight: 1.35,
-                        boxShadow: '0 2px 6px rgba(15, 23, 42, 0.08)',
+                        lineHeight: 1.15,
+                        boxShadow: '0 1px 4px rgba(15, 23, 42, 0.08)',
                       }}
                     >
                       {course.materiaNombre || course.materiaCodigo || 'Materia'} · {course.grupoNombre || 'Grupo'}
