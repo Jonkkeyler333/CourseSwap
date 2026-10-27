@@ -1,0 +1,522 @@
+\documentclass[aspectratio=169,11pt]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{ragged2e}
+\usepackage{hyperref}
+
+\definecolor{coursegreen}{HTML}{1B5E20}
+\definecolor{coursegreenlight}{HTML}{E8F5E9}
+\definecolor{coursegreenmid}{HTML}{43A047}
+\definecolor{coursegray}{HTML}{455A64}
+\definecolor{coursewhite}{HTML}{FFFFFF}
+
+\usetheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{frametitle}{
+  \vspace{0.25cm}
+  \insertframetitle\par
+  \vspace{0.08cm}
+  \color{coursegreenmid}\rule{\textwidth}{1.2pt}
+}
+\setbeamercolor{normal text}{fg=coursegray,bg=coursewhite}
+\setbeamercolor{structure}{fg=coursegreen}
+\setbeamercolor{frametitle}{fg=coursegreen}
+\setbeamercolor{title}{fg=coursegreen}
+\setbeamercolor{author}{fg=coursegray}
+\setbeamercolor{block title}{fg=coursewhite,bg=coursegreen}
+\setbeamercolor{block body}{fg=coursegray,bg=coursegreenlight}
+\setbeamercolor{alertblock title}{fg=coursewhite,bg=coursegreenmid}
+\setbeamercolor{alertblock body}{fg=coursegray,bg=coursegreenlight}
+\setbeamercolor{exampleblock title}{fg=coursewhite,bg=coursegreen}
+\setbeamercolor{exampleblock body}{fg=coursegray,bg=coursegreenlight}
+\setbeamercolor{footline}{fg=coursegray,bg=coursewhite}
+
+\setbeamertemplate{footline}{
+  \leavevmode
+  \hbox{
+    \begin{beamercolorbox}[wd=.82\paperwidth,ht=2.5ex,dp=1ex,leftskip=1em]{footline}
+      CourseSwap
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[wd=.18\paperwidth,ht=2.5ex,dp=1ex,center]{footline}
+      \insertframenumber/\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{coursegreen}\bfseries,
+  commentstyle=\color{coursegray}\itshape,
+  stringstyle=\color{coursegreenmid},
+  frame=single,
+  rulecolor=\color{coursegreenmid},
+  backgroundcolor=\color{coursegreenlight},
+  showstringspaces=false,
+  breaklines=true,
+  columns=fullflexible
+}
+
+\lstdefinelanguage{JavaScript}{
+  morekeywords={const,let,var,function,return,if,else,await,async,new,import,from,
+    export,default,throw,try,catch},
+  sensitive=true,
+  morecomment=[l]{//},
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\title{CourseSwap}
+\subtitle{De la necesidad académica al intercambio de grupos}
+\author{\texorpdfstring{Entornos de Programación F1\\Alejandro Castro Rondon \and Jonk Keyler Sánchez Pabón \and Juan Carlos Elizalde Padilla}{Entornos de Programación F1 -- CourseSwap}}
+\institute{Universidad Industrial de Santander}
+\date{2026}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{¿Qué problema resuelve CourseSwap?}
+  \begin{block}{Motivación}
+    Cambiarse de grupo puede ser necesario cuando el horario deja de ser conveniente,
+    pero encontrar a otra persona que quiera realizar el intercambio inverso exige
+    búsquedas manuales y coordinación externa.
+  \end{block}
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+      \textbf{Antes}
+      \begin{itemize}
+        \item Búsqueda informal de estudiantes.
+        \item Validación manual de grupos y horarios.
+        \item Coordinación dispersa y poco trazable.
+      \end{itemize}
+    \column{0.48\textwidth}
+      \textbf{Con CourseSwap}
+      \begin{itemize}
+        \item Solicitudes con grupo actual y grupo deseado.
+        \item Matching inverso por materia.
+        \item Confirmación bilateral antes de ejecutar el cambio.
+      \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Flujo principal del producto}
+  \begin{enumerate}
+    \item El estudiante consulta sus materias, matrículas, grupos y horarios.
+    \item Publica una solicitud de cambio.
+    \item El sistema busca una solicitud inversa compatible.
+    \item Se crea un match y se notifica a ambas personas.
+    \item Cada participante confirma el intercambio.
+    \item Con las dos confirmaciones, se intercambian las matrículas y se registra
+          el cambio ejecutado.
+  \end{enumerate}
+  \vspace{0.25cm}
+  \begin{alertblock}{Regla de seguridad funcional}
+    El intercambio no se ejecuta con una sola confirmación: ambas partes deben
+    aceptar el match.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Funcionalidades implementadas}
+\scriptsize
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.34\textwidth}
+                >{\raggedright\arraybackslash}p{0.16\textwidth}
+                >{\raggedright\arraybackslash}p{0.42\textwidth}}
+\toprule
+\textbf{Funcionalidad} & \textbf{Estado} & \textbf{Descripción} \\
+\midrule
+Registro de estudiantes & Implementado & Nombre, apellido, código, correo y contraseña con validación y BCrypt. \\
+Inicio de sesión & Implementado & Spring Security, JWT y rutas protegidas. \\
+Perfil autenticado & Implementado & Consulta del estudiante actual mediante \texttt{/estudiantes/me}. \\
+Materias, grupos y horarios & Implementado & Consulta de catálogo y horarios para elegir destinos. \\
+Consulta y creación de matrículas & Implementado & Gestión de la matrícula desde la interfaz. \\
+Solicitudes de cambio & Implementado & Crear, editar, listar y cancelar solicitudes. \\
+Conflictos de horario & Implementado & Validación al solicitar y al aceptar coincidencias. \\
+Matching automático y manual & Implementado & Coincidencia inversa y búsqueda de solicitudes compatibles. \\
+Confirmación bilateral & Implementado & Ambos estudiantes deben confirmar el match. \\
+Ejecución e historial & Implementado & Intercambio de grupos y registro en \texttt{CambioEjecutado}. \\
+Notificaciones por correo & Implementado & Brevo para solicitud creada, match encontrado e intercambio confirmado. \\
+Tema y sesión & Implementado & Tema claro/oscuro, JWT persistido y guard de sesión. \\
+\bottomrule
+\end{tabular}
+\end{frame}
+
+\begin{frame}{Arquitectura general}
+  \begin{center}
+    \begin{tikzpicture}[node distance=0.8cm, every node/.style={font=\small},
+      box/.style={draw=coursegreen, rounded corners, fill=coursegreenlight,
+                  minimum width=3.1cm, minimum height=0.9cm, align=center},
+      arrow/.style={->, thick, color=coursegreen}]
+      \node[box] (frontend) {Frontend SPA\\React + Vite};
+      \node[box, right=of frontend] (api) {API REST\\Spring Boot};
+      \node[box, right=of api] (db) {Persistencia\\PostgreSQL};
+      \node[box, below=of api] (mail) {Servicio de correo\\Brevo API};
+      \draw[arrow] (frontend) -- node[above]{HTTP + JWT} (api);
+      \draw[arrow] (api) -- node[above]{JPA/Hibernate} (db);
+      \draw[arrow] (api) -- node[right]{REST + HTML} (mail);
+    \end{tikzpicture}
+  \end{center}
+  \vspace{0.25cm}
+  \begin{block}{Backend}
+    API REST monolítica por capas: Controller $\rightarrow$ Service $\rightarrow$
+    Repository $\rightarrow$ PostgreSQL. DTOs y un manejador global separan
+    contratos, persistencia y errores de negocio.
+  \end{block}
+\end{frame}
+
+\begin{frame}{El nuevo frontend: una SPA modular}
+  El proyecto conserva un frontend estático legado, pero la experiencia principal
+  se reorganizó en una SPA React con rutas, hooks y componentes reutilizables.
+  \vspace{0.25cm}
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+      \begin{block}{Características}
+        \begin{itemize}
+          \item Renderizado declarativo con React.
+          \item Navegación sin recargar la página.
+          \item Hooks para autenticación, solicitudes, matrículas y matches.
+          \item Componentes MUI para una interfaz consistente.
+          \item Estado remoto administrado por TanStack Query.
+        \end{itemize}
+      \end{block}
+    \column{0.48\textwidth}
+      \begin{block}{Separación de responsabilidades}
+        \begin{itemize}
+          \item \texttt{pages/}: composición de pantallas.
+          \item \texttt{components/}: UI reutilizable.
+          \item \texttt{hooks/}: lógica de datos y mutaciones.
+          \item \texttt{services/}: llamadas HTTP.
+          \item \texttt{store/}: notificaciones globales.
+        \end{itemize}
+      \end{block}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Árbol de carpetas del frontend}
+\scriptsize
+\begin{lstlisting}
+frontend-spa/
++-- public/
++-- src/
+|   +-- api/              # Axios y configuracion del JWT
+|   +-- assets/           # Logo y recursos visuales
+|   +-- components/       # Formularios, tarjetas, layout y tablas
+|   +-- constants/        # Constantes de agenda y UI
+|   +-- hooks/            # useAuth, useQuery y useMutation
+|   +-- pages/            # Auth, Dashboard, Solicitudes y Matriculas
+|   +-- services/         # auth, match, materias, matricula y solicitudes
+|   +-- store/            # notifyStore con Zustand
+|   +-- App.jsx           # Router y rutas protegidas
+|   +-- main.jsx          # React root + QueryClientProvider
++-- index.html
++-- package.json
++-- vite.config.js
++-- eslint.config.js
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{¿Para qué sirve Vite?}
+  \begin{block}{Definición}
+    Vite es la herramienta de desarrollo y build del frontend. Proporciona un
+    servidor local rápido durante el desarrollo y genera los archivos optimizados
+    para producción.
+  \end{block}
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+      \textbf{Durante el desarrollo}
+      \begin{itemize}
+        \item Servidor con Hot Module Replacement (HMR).
+        \item Recarga rápida de módulos modificados.
+        \item Integración directa con React mediante \texttt{@vitejs/plugin-react}.
+      \end{itemize}
+    \column{0.48\textwidth}
+      \textbf{Para producción}
+      \begin{itemize}
+        \item Resuelve imports ES Modules.
+        \item Minifica y empaqueta los recursos.
+        \item Genera la carpeta \texttt{dist/} para desplegar.
+      \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Dependencias principales del frontend}
+\scriptsize
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.28\textwidth}
+                >{\raggedright\arraybackslash}p{0.60\textwidth}}
+\toprule
+\textbf{Dependencia} & \textbf{Propósito en CourseSwap} \\
+\midrule
+\texttt{react}, \texttt{react-dom} & Construcción declarativa de la interfaz y montaje de la aplicación. \\
+\texttt{vite} & Servidor de desarrollo, HMR y build de producción. \\
+\texttt{react-router-dom} & Rutas, navegación client-side, layout compartido y rutas protegidas. \\
+\texttt{@mui/material} & Componentes visuales accesibles: botones, formularios, tarjetas, diálogos y grids. \\
+\texttt{@mui/icons-material} & Iconos consistentes para estados, acciones y navegación. \\
+\texttt{@emotion/react}, \texttt{@emotion/styled} & Motor de estilos usado por Material UI. \\
+\texttt{@tanstack/react-query} & Queries, mutaciones, caché, estados de carga e invalidación. \\
+\texttt{axios} & Cliente HTTP común e interceptor para adjuntar el JWT. \\
+\texttt{zustand} & Estado global pequeño para notificaciones. \\
+\texttt{eslint} y plugins & Detección de errores y consistencia durante el desarrollo. \\
+\bottomrule
+\end{tabular}
+\end{frame}
+
+\begin{frame}{¿Por qué TanStack Query?}
+  \begin{block}{Problema que resuelve}
+    El frontend consulta datos remotos que tienen estados propios: cargando,
+    éxito, error, datos antiguos y actualización después de una acción.
+    TanStack Query encapsula ese ciclo sin convertir todo en estado manual.
+  \end{block}
+  \begin{itemize}
+    \item Centraliza caché por claves como \texttt{['solicitudes', studentId]}.
+    \item Evita solicitudes duplicadas y conserva datos recientes.
+    \item Expone estados claros: \texttt{isPending}, \texttt{isError} y \texttt{data}.
+    \item Permite invalidar y refrescar datos después de crear, editar o confirmar.
+    \item Separa el estado remoto del estado visual local de los formularios.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Queries y mutaciones}
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+      \begin{block}{Query: lectura}
+        Una query obtiene datos del servidor y los mantiene disponibles en caché.
+        \[
+          \texttt{useQuery} \Rightarrow
+          \text{data + loading + error}
+        \]
+        \vspace{-0.1cm}
+        Ejemplos:
+        \begin{itemize}
+          \item Solicitudes del estudiante.
+          \item Matches activos.
+          \item Horarios de una materia.
+        \end{itemize}
+      \end{block}
+    \column{0.48\textwidth}
+      \begin{block}{Mutación: escritura}
+        Una mutación ejecuta un cambio en el servidor y luego actualiza las
+        queries relacionadas.
+        \[
+          \texttt{useMutation} \Rightarrow
+          \text{acción + éxito + error}
+        \]
+        \vspace{-0.1cm}
+        Ejemplos:
+        \begin{itemize}
+          \item Crear o editar una solicitud.
+          \item Confirmar un match.
+          \item Eliminar una solicitud.
+        \end{itemize}
+      \end{block}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Ejemplo: mutación e invalidación}
+\begin{lstlisting}[language=JavaScript]
+const updateSolicitudMutation = useMutation({
+  mutationFn: ({ solicitudId, nuevoGrupoId }) =>
+    solicitudesService.updateSolicitud(solicitudId, nuevoGrupoId),
+  onSuccess: () => {
+    queryClient.invalidateQueries({
+      queryKey: ['solicitudes', studentId],
+    })
+  },
+})
+\end{lstlisting}
+\begin{exampleblock}{Idea clave}
+  La interfaz no necesita reconstruir manualmente toda la lista: se invalida la
+  query y TanStack Query vuelve a sincronizarla con el backend.
+\end{exampleblock}
+\end{frame}
+
+\begin{frame}{Uso de react-router-dom}
+  \texttt{react-router-dom} permite que la SPA cambie de pantalla sin recargar
+  completamente el documento.
+  \begin{itemize}
+    \item \texttt{createBrowserRouter}: define el árbol de rutas.
+    \item \texttt{Outlet}: renderiza las páginas dentro del layout principal.
+    \item \texttt{NavLink}: enlaces con estado activo en la navbar.
+    \item \texttt{Navigate}: redirección cuando no existe una sesión válida.
+    \item \texttt{ProtectedRoute}: impide acceder a la aplicación sin autenticación.
+  \end{itemize}
+  \vspace{0.25cm}
+  \begin{block}{Resultado}
+    El layout, la navbar y la autenticación permanecen centralizados mientras
+    cada página se concentra en su propia responsabilidad.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Material UI en la interfaz}
+  \begin{block}{¿Qué es Material UI?}
+    Material UI (MUI) es una biblioteca de componentes React basada en los
+    principios de Material Design. Proporciona componentes listos para usar,
+    personalizables y con patrones de interacción consistentes.
+  \end{block}
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+      \textbf{Componentes utilizados}
+      \begin{itemize}
+        \item \texttt{Button}, \texttt{TextField}, \texttt{Select}.
+        \item \texttt{Card}, \texttt{Paper}, \texttt{Dialog}.
+        \item \texttt{Alert}, \texttt{Chip}, \texttt{Grid}, \texttt{Stack}.
+        \item \texttt{AppBar}, \texttt{Drawer}, \texttt{Tabs}.
+      \end{itemize}
+    \column{0.48\textwidth}
+      \textbf{Beneficios}
+      \begin{itemize}
+        \item Diseño coherente entre pantallas.
+        \item Responsive design con breakpoints.
+        \item Accesibilidad y estados visuales incorporados.
+        \item Personalización mediante \texttt{sx} y la paleta del tema.
+        \item Menos CSS repetido y mayor velocidad de desarrollo.
+      \end{itemize}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Iconos: significado visual y consistencia}
+  \begin{block}{¿Por qué usar los iconos de MUI?}
+    \texttt{@mui/icons-material} ofrece iconos alineados con Material Design y
+    compatibles con los componentes de la biblioteca.
+  \end{block}
+  \begin{itemize}
+    \item Estados de solicitudes: propuesta, match, confirmada y cancelada.
+    \item Acciones: confirmar, cancelar, editar y crear.
+    \item Navegación: menú móvil, inicio y accesos rápidos.
+    \item Refuerzo visual de alertas y estados vacíos.
+  \end{itemize}
+  \vspace{0.2cm}
+  \begin{exampleblock}{Beneficio UX}
+    El icono no reemplaza el texto: lo refuerza. Esto mejora el escaneo visual y
+    hace que las acciones importantes sean reconocibles de inmediato.
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}{Servicio de correo con Brevo}
+  \begin{block}{Objetivo}
+    Informar al estudiante de eventos importantes sin obligarlo a permanecer
+    dentro de la aplicación: creación de solicitud, match encontrado y
+    confirmación completa del intercambio.
+  \end{block}
+  \begin{enumerate}
+    \item El servicio de dominio detecta el evento.
+    \item Construye un contexto con nombre, materia, grupos, código y match.
+    \item Thymeleaf procesa una plantilla HTML.
+    \item \texttt{EmailService} envía el HTML a la API SMTP de Brevo.
+    \item Brevo entrega el correo al destinatario.
+  \end{enumerate}
+  \vspace{0.15cm}
+  \texttt{POST https://api.brevo.com/v3/smtp/email}
+\end{frame}
+
+\begin{frame}[fragile]{Implementación del EmailService}
+\begin{lstlisting}[language=Java]
+@Async("emailExecutor")
+public void sendEmail(String destinationEmail,
+                      String subject,
+                      String templateName,
+                      Context context) {
+    String htmlBody = templateEngine.process(templateName, context);
+    Map<String, Object> request = Map.of(
+        "sender", Map.of("email", senderEmail),
+        "to", new Map[]{Map.of("email", destinationEmail)},
+        "subject", subject,
+        "htmlContent", htmlBody
+    );
+    restClient.post()
+        .uri(BREVO_SEND_EMAIL_URL)
+        .header("api-key", brevoApiKey)
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(request)
+        .retrieve()
+        .toBodilessEntity();
+}
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Decisiones técnicas del correo}
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+      \begin{block}{Asincronía}
+        \texttt{@Async("emailExecutor")} desacopla el envío de la respuesta
+        principal. La creación de una solicitud o la confirmación no queda
+        bloqueada esperando a Brevo.
+      \end{block}
+      \begin{block}{Plantillas}
+        Thymeleaf genera HTML con datos del evento y mantiene la presentación
+        del correo fuera de la lógica del servicio.
+      \end{block}
+    \column{0.48\textwidth}
+      \begin{block}{Configuración}
+        Las credenciales se obtienen mediante variables de entorno:
+        \texttt{BREVO\_API\_KEY} y \texttt{BREVO\_SENDER\_EMAIL}.
+      \end{block}
+      \begin{block}{Resiliencia}
+        Se validan credenciales antes del envío y se registran errores de
+        \texttt{RestClient} con el destinatario y la causa.
+      \end{block}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{¿Cuándo se envían correos?}
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.29\textwidth}
+                >{\raggedright\arraybackslash}p{0.26\textwidth}
+                >{\raggedright\arraybackslash}p{0.31\textwidth}}
+\toprule
+\textbf{Evento} & \textbf{Plantilla} & \textbf{Destinatario y propósito} \\
+\midrule
+Solicitud sin match & \texttt{solicitud-creada.html} & El estudiante recibe confirmación de creación, materia y grupos. \\
+Match automático & \texttt{match-encontrado.html} & Ambos estudiantes reciben el código de la otra persona y deben revisar el match. \\
+Match manual & \texttt{match-encontrado.html} & Se notifica a los dos participantes cuando se genera la coincidencia. \\
+Confirmación bilateral & \texttt{match-confirmado.html} & Ambos reciben la confirmación del intercambio ejecutado. \\
+\bottomrule
+\end{tabular}
+}
+\vspace{0.25cm}
+\begin{alertblock}{Importante}
+  El correo acompaña el flujo de negocio; la fuente de verdad continúa siendo
+  el estado persistido en la API y la base de datos.
+\end{alertblock}
+\end{frame}
+
+\begin{frame}{Seguridad y despliegue}
+  \begin{itemize}
+    \item JWT para autenticación stateless y protección de endpoints.
+    \item Axios agrega automáticamente el token en las solicitudes de la SPA.
+    \item Variables de entorno para secretos de JWT, base de datos y Brevo.
+    \item Backend desplegado en Render con PostgreSQL.
+    \item Frontend SPA desplegado en GitHub Pages mediante GitHub Actions.
+    \item Swagger/OpenAPI disponible para explorar el contrato de la API.
+  \end{itemize}
+  \vspace{0.25cm}
+  \begin{block}{Principio aplicado}
+    Los secretos no forman parte del código fuente ni de la configuración
+    pública del frontend.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Cierre}
+  \begin{center}
+    {\Huge\color{coursegreen}\textbf{CourseSwap}}
+    
+    \vspace{0.4cm}
+    {\large Una plataforma para convertir una búsqueda manual en un intercambio
+    seguro, trazable y confirmado por ambas partes.}
+    
+    \vspace{0.7cm}
+    \textcolor{coursegreenmid}{Gracias}
+  \end{center}
+\end{frame}
+
+\end{document}

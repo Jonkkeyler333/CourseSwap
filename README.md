@@ -12,6 +12,7 @@ Entornos de Programacion F1 2026-2
 
 ## Despliegue
 - Enlace Backend desplegado: [https://courseswap.onrender.com/swagger-ui/index.html](https://courseswap.onrender.com/swagger-ui/index.html)
+- Enlace Frontend SPA: [https://courseswap-1.onrender.com/auth](https://courseswap-1.onrender.com/auth)
 - Enlace Frontend desplegado: [https://jonkkeyler333.github.io/CourseSwap/](https://jonkkeyler333.github.io/CourseSwap/)
 
 ## JWT
@@ -61,6 +62,7 @@ El siguiente diagrama de estados y transiciones, muestra el flujo que siguen los
 | Búsqueda y matching manual | **Implementado** | Permite consultar solicitudes compatibles y aceptarlas desde la interfaz. |
 | Confirmación bilateral del intercambio | **Implementado** | Cada participante confirma o cancela el match. |
 | Ejecución e historial del intercambio | **Implementado** | Al confirmar ambas partes se intercambian los grupos y se registra `CambioEjecutado`. |
+| Notificaciones por correo electrónico | **Implementado** | Brevo notifica la creación de solicitudes, la detección de matches y la ejecución del intercambio. |
 | Tema claro/oscuro y guard de sesión | **Implementado** | Preferencia persistida en `localStorage` y redirección ante sesiones no autenticadas. |
 
 ## Tecnologías empleadas
@@ -80,17 +82,44 @@ El siguiente diagrama de estados y transiciones, muestra el flujo que siguen los
 
 ### Frontend
 
-- HTML5 y Bootstrap 5.3.2 mediante CDN.
-- JavaScript moderno con ES Modules.
-- Fetch API para comunicarse con el backend.
-- `localStorage` para token, usuario y preferencia de tema.
-- No utiliza framework frontend, TypeScript, bundler ni `package.json`.
+- **Frontend legado:** HTML5, Bootstrap 5.3.2 mediante CDN, JavaScript moderno
+  con ES Modules, Fetch API y `localStorage`.
+- **Frontend SPA:** React 19, Vite 8, React Router DOM 7, Material UI 9,
+  TanStack Query 5, Axios y Zustand.
+- React Query administra el estado remoto, caché, queries, mutaciones e
+  invalidación de datos.
+- Material UI proporciona componentes responsivos, accesibles y consistentes,
+  junto con `@mui/icons-material`.
+
+### Notificaciones y correo electrónico
+
+- Brevo se integra mediante su API HTTP SMTP
+  (`https://api.brevo.com/v3/smtp/email`).
+- El backend encapsula la integración en `EmailService`, utilizando
+  `RestClient` para realizar las solicitudes.
+- Thymeleaf procesa plantillas HTML antes de enviarlas:
+  - `solicitud-creada.html`: confirma la creación de una solicitud sin match.
+  - `match-encontrado.html`: informa a ambos estudiantes cuando se encuentra
+    una coincidencia.
+  - `match-confirmado.html`: confirma que ambas partes aceptaron y que el
+    intercambio fue ejecutado.
+- El envío se ejecuta de forma asíncrona mediante
+  `@Async("emailExecutor")`, evitando bloquear la respuesta de las operaciones
+  principales.
+- Las credenciales se configuran mediante variables de entorno y no se
+  almacenan en el repositorio:
+  - `BREVO_API_KEY`
+  - `BREVO_SENDER_EMAIL`
+- Si faltan credenciales o Brevo devuelve un error, el backend registra la
+  incidencia mediante el logger de la aplicación.
 
 ### Despliegue
 
-- Render para el backend mednainte un contenedor que realiza el build de Maven y ejecuta la aplicación.
+- Render para el backend mediante un contenedor que realiza el build de Maven y ejecuta la aplicación.
 - Render para la base de datos PostgreSQL.
-- GitHub Pages para el frontend mediante un github action que deploya la aplicación.
+- GitHub Pages para el frontend legado mediante una GitHub Action.
+- Render para la SPA React mediante el servicio desplegado en
+  `https://courseswap-1.onrender.com/auth`.
 
 ## Arquitectura
 
@@ -119,7 +148,7 @@ Las entidades principales son `Estudiante`, `Materia`, `Grupo`, `HorarioGrupo`,
 En la siguiente figura se detalla los servicios desplegados y la comunicación entre ellos:
 <img src="./media/despliegue.png" alt="Despliegue" width="600">
 
-### Frontend: Multi-Page Application modular orientada a vistas
+### Frontend legado: Multi-Page Application modular orientada a vistas
 
 El frontend adopta un estilo particularmente interesante: no es una SPA
 tradicional ni depende de un framework. Es una **Multi-Page Application (MPA)**
@@ -157,6 +186,72 @@ Este enfoque reduce la infraestructura y mantiene responsabilidades claras,
 aunque requiere conectar manualmente cada vista con sus servicios y no ofrece
 un router o un estado global reactivo como una SPA.
 
+### Frontend actual: Single-Page Application con React
+
+El proyecto cuenta además con un frontend SPA en `frontend-spa/`, utilizado como
+la interfaz React principal. A diferencia del frontend legado, esta aplicación
+mantiene una única entrada y cambia de vista mediante rutas client-side sin
+recargar el documento completo.
+
+La arquitectura de la SPA separa la composición visual, el acceso a datos y el
+estado:
+
+- `src/pages/`: pantallas como autenticación, dashboard, solicitudes,
+  matrículas y búsqueda.
+- `src/components/`: componentes reutilizables como formularios, tarjetas,
+  navegación, tablas y notificaciones.
+- `src/hooks/`: lógica encapsulada para autenticación, solicitudes, matrículas,
+  horarios y matches.
+- `src/services/`: funciones que consumen los endpoints de la API mediante
+  Axios.
+- `src/api/`: configuración del cliente HTTP y envío automático del JWT.
+- `src/store/`: estado global pequeño para las notificaciones de la interfaz,
+  implementado con Zustand.
+- `src/App.jsx`: definición de rutas, layout y rutas protegidas.
+- `src/main.jsx`: punto de montaje de React y configuración de
+  `QueryClientProvider`.
+
+#### Estado remoto y navegación
+
+TanStack Query separa el estado remoto del estado local de los formularios:
+
+- Las **queries** consultan y almacenan en caché solicitudes, matrículas,
+  horarios y matches.
+- Las **mutaciones** crean, editan, eliminan o confirman recursos.
+- Después de una mutación se invalidan las queries relacionadas para
+  sincronizar la interfaz con el backend.
+
+`react-router-dom` administra la navegación, el layout compartido mediante
+`Outlet`, los enlaces activos con `NavLink` y la protección de rutas mediante
+`ProtectedRoute`.
+
+#### Estructura de la SPA
+
+```text
+frontend-spa/
+├── public/
+├── src/
+│   ├── api/
+│   ├── assets/
+│   ├── components/
+│   ├── constants/
+│   ├── hooks/
+│   ├── pages/
+│   ├── services/
+│   ├── store/
+│   ├── App.jsx
+│   └── main.jsx
+├── index.html
+├── package.json
+├── vite.config.js
+└── eslint.config.js
+```
+
+Vite proporciona el servidor de desarrollo con recarga rápida y genera el
+bundle optimizado para producción. La SPA se sirve actualmente desde Render,
+mientras que el frontend legado continúa disponible como una aplicación
+estática independiente.
+
 ## Estructura del proyecto
 
 ```text
@@ -172,6 +267,7 @@ CourseSwap/
 │   ├── src/main/resources/
 │   └── pom.xml
 ├── frontend/                    # MPA estática y módulos ES6
+├── frontend-spa/                # SPA React construida con Vite
 ├── docker-compose.yml           # PostgreSQL local
 └── README.md
 ```
@@ -186,6 +282,7 @@ El proyecto se gestiona con JIRA, donde se registran historias de usuario, tarea
 
 - Java 21.
 - Docker y Docker Compose.
+- Node.js y npm para ejecutar la SPA React.
 - Un navegador moderno.
 - Un servidor HTTP estático para servir `frontend/` (los módulos ES6 no deben
   abrirse directamente con `file://`).
@@ -230,6 +327,26 @@ http://localhost:<puerto>/index.html
 
 La URL base del backend está definida actualmente en
 `frontend/js/config.js` como `http://localhost:8080/api`.
+
+### Frontend SPA
+
+Desde `frontend-spa/`, instalar dependencias y ejecutar el servidor de
+desarrollo:
+
+```bash
+npm install
+npm run dev
+```
+
+La SPA queda disponible en la URL que indique Vite, normalmente
+`http://localhost:5173`. La URL base de la API se configura mediante las
+variables de entorno utilizadas por `src/api/axiosConfig.js`:
+
+```text
+VITE_API_URL=http://localhost:8080/api
+```
+
+Si la variable no está definida, la SPA utiliza esa URL local por defecto.
 
 ## API principal
 
